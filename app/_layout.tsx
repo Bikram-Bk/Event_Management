@@ -1,5 +1,10 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack, useRootNavigationState, useRouter, useSegments } from "expo-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  Stack,
+  useRootNavigationState,
+  useRouter,
+  useSegments,
+} from "expo-router";
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 
@@ -24,6 +29,9 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments[0] === "(auth)";
 
+    // Let index.tsx handle initial redirect
+    if (!segments[0]) return;
+
     if (!user && !inAuthGroup) {
       router.replace("/(auth)/welcome");
     } else if (user && inAuthGroup) {
@@ -41,10 +49,10 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-      <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
         <RootLayoutNav />
-    </AuthProvider>
-      </QueryClientProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

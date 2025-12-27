@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useChangePassword } from '../api/use-change-password';
+import { useChangePassword } from '../../hooks/use-change-password';
 
 export default function ChangePasswordScreen() {
   const router = useRouter();

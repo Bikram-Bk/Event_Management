@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter, useSegments } from 'expo-router';
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useLogin } from '../app/api/use-login';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter, useSegments } from "expo-router";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useLogin } from "../hooks/use-login";
 
 type User = {
   name: string;
@@ -35,15 +35,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('user');
-        const storedToken = await AsyncStorage.getItem('accessToken');
-        
+        const storedUser = await AsyncStorage.getItem("user");
+        const storedToken = await AsyncStorage.getItem("accessToken");
+
+        console.log("AuthContext: Loading user...", {
+          hasUser: !!storedUser,
+          hasToken: !!storedToken,
+        });
+
         if (storedUser && storedToken) {
-          setUser(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+          console.log("AuthContext: User restored:", parsedUser.email);
+          setUser(parsedUser);
+        } else {
+          console.log("AuthContext: No user data found in storage");
         }
       } catch (error) {
-        console.error('Failed to load user', error);
+        console.error("AuthContext: Failed to load user", error);
       } finally {
+        console.log("AuthContext: Initialization complete");
         setIsInitializing(false);
       }
     };
@@ -59,36 +69,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const userData = data.data.user;
           setUser(userData);
           try {
-            await AsyncStorage.setItem('user', JSON.stringify(userData));
-            await AsyncStorage.setItem('accessToken', data.data.accessToken);
-            await AsyncStorage.setItem('refreshToken', data.data.refreshToken);
+            await AsyncStorage.setItem("user", JSON.stringify(userData));
+            await AsyncStorage.setItem("accessToken", data.data.accessToken);
+            await AsyncStorage.setItem("refreshToken", data.data.refreshToken);
           } catch (error) {
-            console.error('Failed to save user data', error);
+            console.error("Failed to save user data", error);
           }
-          router.replace('/(tabs)');
+          router.replace("/(tabs)");
         },
         onError: (error) => {
-          console.error('Login failed:', error);
-          alert('Login failed: ' + error.message);
-        }
+          console.error("Login failed:", error);
+          alert("Login failed: " + error.message);
+        },
       }
     );
   };
 
   const signOut = async () => {
     try {
-      await AsyncStorage.removeItem('user');
-      await AsyncStorage.removeItem('accessToken');
-      await AsyncStorage.removeItem('refreshToken');
+      await AsyncStorage.removeItem("user");
+      await AsyncStorage.removeItem("accessToken");
+      await AsyncStorage.removeItem("refreshToken");
     } catch (error) {
-      console.error('Failed to remove user data', error);
+      console.error("Failed to remove user data", error);
     }
     setUser(null);
-    router.replace('/(auth)/sign-in');
+    router.replace("/(auth)/sign-in");
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading: isInitializing || loginMutation.isPending, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading: isInitializing || loginMutation.isPending,
+        signIn,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

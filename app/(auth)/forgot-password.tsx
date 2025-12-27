@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { forgotPassword } from '../api/use-forgot-password';
+import { forgotPassword } from '../../hooks/use-forgot-password';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();

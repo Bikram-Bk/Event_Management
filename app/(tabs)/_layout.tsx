@@ -11,53 +11,131 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: "#007AFF",
+          tabBarActiveTintColor: "#C5A572", // Gold tint
           tabBarInactiveTintColor: "#8E8E93",
           tabBarStyle: {
+            position: "absolute",
+            bottom: 25,
+            left: 20,
+            right: 20,
+
+            elevation: 5,
             backgroundColor: "#fff",
-            paddingBottom: insets.bottom,
-            height: 60 + insets.bottom,
+            borderRadius: 30, // Pill shape
+            height: 60,
+            paddingBottom: 0, // Center icons vertically
+            borderTopWidth: 0,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 10,
+            marginHorizontal: 12,
           },
+          tabBarShowLabel: false, // Cleaner look for floating tabs usually, or keep it if preferred. Let's keep label for clarity but style it? User said "floating type", usually implies minimal. Let's try hiding label or making it small. Let's keep default first but maybe adjust padding.
+          // Actually user didn't say hide label.
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
-            title: "Events",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="calendar" size={size} color={color} />
+            title: "Home",
+            tabBarIcon: ({ color, size, focused }) => (
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  top: 10,
+                }}
+              >
+                <Ionicons
+                  name={focused ? "home" : "home-outline"}
+                  size={24}
+                  color={color}
+                />
+                {focused && (
+                  <View
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: 2,
+                      backgroundColor: color,
+                      marginTop: 4,
+                    }}
+                  />
+                )}
+              </View>
             ),
+            tabBarLabel: ({ focused, color }) => null, // Hiding label for cleaner floating look as per modern design trends
           }}
         />
         <Tabs.Screen
-          name="explore"
+          name="events"
           options={{
-            title: "Explore",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="search" size={size} color={color} />
+            title: "My Events",
+            tabBarIcon: ({ color, size, focused }) => (
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  top: 10,
+                }}
+              >
+                <Ionicons
+                  name={focused ? "ticket" : "ticket-outline"}
+                  size={24}
+                  color={color}
+                />
+                {focused && (
+                  <View
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: 2,
+                      backgroundColor: color,
+                      marginTop: 4,
+                    }}
+                  />
+                )}
+              </View>
             ),
-          }}
-        />
-        <Tabs.Screen
-          name="create"
-          options={{
-            title: "Create",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="add-circle" size={size} color={color} />
-            ),
+            tabBarLabel: () => null,
           }}
         />
         <Tabs.Screen
           name="profile"
           options={{
             title: "Profile",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="person" size={size} color={color} />
+            tabBarIcon: ({ color, size, focused }) => (
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  top: 10,
+                }}
+              >
+                <Ionicons
+                  name={focused ? "person" : "person-outline"}
+                  size={24}
+                  color={color}
+                />
+                {focused && (
+                  <View
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: 2,
+                      backgroundColor: color,
+                      marginTop: 4,
+                    }}
+                  />
+                )}
+              </View>
             ),
+            tabBarLabel: () => null,
           }}
         />
       </Tabs>
-      <StatusBar barStyle='dark-content'/>
+      <StatusBar barStyle="dark-content" />
     </View>
   );
 }

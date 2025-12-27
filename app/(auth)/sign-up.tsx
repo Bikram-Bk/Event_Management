@@ -3,7 +3,7 @@ import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRegister } from '../api/use-register';
+import { useRegister } from '../../hooks/use-register';
 
 export default function SignUpScreen() {
   const router = useRouter();
