@@ -1,8 +1,16 @@
-# Welcome to your Expo app 👋
+# Event Management App 🎉
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is an **Event Management** mobile application built with [Expo](https://expo.dev) and [Expo Router](https://docs.expo.dev/router/introduction/).
 
-## Get started
+## Features
+
+✨ **Tab Navigation** with 4 main screens:
+- **Events** - Browse and manage events
+- **Explore** - Search and discover events by category
+- **Create** - Create new events with photos, location, and details
+- **Profile** - User profile with statistics and settings
+
+## Get Started
 
 1. Install dependencies
 
@@ -23,28 +31,41 @@ In the output, you'll find options to open the app in a
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Project Structure
 
-## Get a fresh project
+This project uses [Expo Router](https://docs.expo.dev/router/introduction/) with file-based routing. See [PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md) for a detailed overview of the project architecture.
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+app/
+├── (tabs)/              # Tab navigation
+│   ├── index.tsx       # Events tab
+│   ├── explore.tsx     # Explore tab
+│   ├── create.tsx      # Create event tab
+│   └── profile.tsx     # Profile tab
+├── _layout.tsx         # Root layout
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Technology Stack
 
-## Learn more
+- **React Native** (v0.81.5)
+- **Expo SDK** (v54)
+- **Expo Router** (v6) - File-based navigation
+- **TypeScript** (v5.9)
+- **React Navigation** - Tab navigation
+- **Ionicons** - Icon library
+
+## Learn More
 
 To learn more about developing your project with Expo, look at the following resources:
 
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Expo Router documentation](https://docs.expo.dev/router/introduction/): Learn about file-based routing.
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
+## Join the Community
 
 Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+

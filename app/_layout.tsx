@@ -1,24 +1,50 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Stack, useRootNavigationState, useRouter, useSegments } from "expo-router";
+import { useEffect, useState } from "react";
+import { AuthProvider, useAuth } from "../context/AuthContext";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+const queryClient = new QueryClient();
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+function RootLayoutNav() {
+  const { user, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+  const rootNavigationState = useRootNavigationState();
+  const [isMounted, setIsMounted] = useState(false);
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    // Wait until component is mounted
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return; // wait for mounting
+    if (isLoading) return;
+    if (!rootNavigationState?.key) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (!user && !inAuthGroup) {
+      router.replace("/(auth)/welcome");
+    } else if (user && inAuthGroup) {
+      router.replace("/(tabs)");
+    }
+  }, [user, segments, isLoading, rootNavigationState?.key, isMounted]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+      <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+        <RootLayoutNav />
+    </AuthProvider>
+      </QueryClientProvider>
   );
 }
