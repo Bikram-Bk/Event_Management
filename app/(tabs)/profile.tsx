@@ -2,17 +2,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from "react-native";
-import { useAuth } from "../../context/AuthContext";
-import { useGetUser } from "../../hooks/use-get-user";
-import { useUserEvents } from "../../hooks/use-attendees";
 import { Colors } from "../../constants/Colors";
+import { useAuth } from "../../context/AuthContext";
+import { useUserEvents } from "../../hooks/use-attendees";
+import { useGetUser } from "../../hooks/use-get-user";
 
 export default function ProfileTab() {
   const router = useRouter();
