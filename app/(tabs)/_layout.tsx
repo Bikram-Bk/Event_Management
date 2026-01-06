@@ -102,6 +102,39 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="requests"
+          options={{
+            title: "Requests",
+            tabBarIcon: ({ color, size, focused }) => (
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  top: 10,
+                }}
+              >
+                <Ionicons
+                  name={focused ? "document-text" : "document-text-outline"}
+                  size={24}
+                  color={color}
+                />
+                {focused && (
+                  <View
+                    style={{
+                      width: 4,
+                      height: 4,
+                      borderRadius: 2,
+                      backgroundColor: color,
+                      marginTop: 4,
+                    }}
+                  />
+                )}
+              </View>
+            ),
+            tabBarLabel: () => null,
+          }}
+        />
+        <Tabs.Screen
           name="profile"
           options={{
             title: "Profile",

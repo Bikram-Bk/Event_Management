@@ -1,5 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Constants from "expo-constants";
 
 const API_URL =
@@ -71,6 +76,29 @@ export function useEvent(id: string) {
   });
 }
 
+export const useEventAttendees = (eventId: string) => {
+  return useQuery({
+    queryKey: ["event-attendees", eventId],
+    queryFn: async () => {
+      const token = await AsyncStorage.getItem("accessToken");
+      const apiUrl =
+        Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
+      const response = await fetch(
+        `${apiUrl}/api/events/${eventId}/attendees`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
+      return data.data;
+    },
+    enabled: !!eventId,
+  });
+};
+
 // Create event mutation
 export function useCreateEvent() {
   const queryClient = useQueryClient();
@@ -125,8 +153,9 @@ export function useRequestEvent() {
       return await response.json();
     },
     onSuccess: () => {
-      // Invalidate events list to refetch
+      // Invalidate events list and my-requests to refetch
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["my-requests"] });
     },
   });
 }
@@ -212,6 +241,26 @@ export function usePublishEvent() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["event", id] });
       queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+  });
+}
+
+// Get user's requests
+export function useMyRequests() {
+  return useQuery({
+    queryKey: ["my-requests"],
+    queryFn: async () => {
+      const token = await getAuthToken();
+      const response = await fetch(`${API_URL}/api/events/my-requests`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch my requests");
+      }
+      const data = await response.json();
+      return data.data;
     },
   });
 }

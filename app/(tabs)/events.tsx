@@ -10,8 +10,10 @@ import {
   View,
   Image,
   StatusBar,
+  RefreshControl,
 } from "react-native";
 import { useUserEvents } from "../../hooks/use-attendees";
+import { useState, useCallback } from "react";
 import { Colors } from "../../constants/Colors";
 
 const API_URL =
@@ -19,7 +21,14 @@ const API_URL =
 
 export default function MyEventsScreen() {
   const router = useRouter();
-  const { data: events, isLoading } = useUserEvents();
+  const { data: events, isLoading, refetch } = useUserEvents();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   console.log("data", events);
 
@@ -45,6 +54,13 @@ export default function MyEventsScreen() {
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[Colors.light.tint]}
+          />
+        }
       >
         {registeredEvents.length > 0 ? (
           registeredEvents.map((registration: any) => {

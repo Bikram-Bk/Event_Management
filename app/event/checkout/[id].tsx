@@ -10,6 +10,7 @@ import {
   Alert,
   StatusBar,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
@@ -27,7 +28,8 @@ const API_URL =
 export default function CheckoutScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [paymentMethod, setPaymentMethod] = useState("KHALTI");
+  const [quantity, setQuantity] = useState(1);
 
   const {
     data: event,
@@ -49,10 +51,46 @@ export default function CheckoutScreen() {
 
   const handleConfirmPayment = async () => {
     try {
+      if (paymentMethod === "KHALTI") {
+        // Initiate Khalti Payment
+        const token = await AsyncStorage.getItem("accessToken");
+        const response = await fetch(`${API_URL}/api/payments/initiate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            eventId: id,
+            ticketType: "General",
+            quantity: quantity,
+          }),
+        });
+
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new Error(json.error || "Failed to initiate payment");
+        }
+
+        if (json.data && json.data.payment_url) {
+          // Navigate to WebView
+          router.push({
+            pathname: "/payment/khalti",
+            params: {
+              url: json.data.payment_url,
+              attendeeId: json.data.attendeeId,
+            },
+          });
+        } else {
+          throw new Error("Invalid payment response");
+        }
+        return;
+      }
+
+      // COD Logic
       await registerMutation.mutateAsync({
         eventId: id as string,
-        // In a real app, we might pass payment details here
-        // for now, backend assumes PENDING if not free
       });
 
       Alert.alert(
@@ -70,7 +108,7 @@ export default function CheckoutScreen() {
       );
     } catch (error) {
       Alert.alert(
-        "Registration Failed",
+        "Payment Failed",
         error instanceof Error ? error.message : "Please try again later"
       );
     }
@@ -104,9 +142,11 @@ export default function CheckoutScreen() {
   };
 
   const coverImage = getFullImageUrl(event.coverImage);
-  const price = Number(event.price) || 0;
-  // const serviceFee = price * 0.05; // Example service fee
-  const total = price;
+  // Ensure price is treated as number. API might return string for Decimal.
+  // If event is mistakenly marked free but has price, or vice versa, handle it.
+  const rawPrice = Number(event.price);
+  const price = isNaN(rawPrice) ? 0 : rawPrice;
+  const total = price * quantity;
 
   return (
     <View style={styles.container}>
@@ -155,17 +195,42 @@ export default function CheckoutScreen() {
           </View>
         </View>
 
+        {/* Quantity Selection */}
+        <Text style={styles.sectionTitle}>Number of Tickets</Text>
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Quantity</Text>
+            <View style={styles.quantityControl}>
+              <TouchableOpacity
+                onPress={() => setQuantity(Math.max(1, quantity - 1))}
+                style={styles.quantityButton}
+              >
+                <Ionicons name="remove" size={20} color={Colors.light.text} />
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{quantity}</Text>
+              <TouchableOpacity
+                onPress={() => setQuantity(quantity + 1)}
+                style={styles.quantityButton}
+              >
+                <Ionicons name="add" size={20} color={Colors.light.text} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
         {/* Payment Method */}
         <Text style={styles.sectionTitle}>Payment Method</Text>
-        <TouchableOpacity
-          style={[styles.paymentOption, styles.activePayment]}
-          onPress={() => setPaymentMethod("COD")}
-        >
+        {/* Khalti Payment Option */}
+        <View style={[styles.paymentOption, styles.activePayment]}>
           <View style={styles.paymentRow}>
-            <Ionicons name="cash-outline" size={24} color={Colors.light.tint} />
+            <Ionicons
+              name="wallet-outline"
+              size={32}
+              color={Colors.light.tint}
+            />
             <View style={styles.paymentTextContainer}>
-              <Text style={styles.paymentTitle}>Cash on Delivery</Text>
-              <Text style={styles.paymentSubtitle}>Pay at the venue</Text>
+              <Text style={styles.paymentTitle}>Khalti Digital Wallet</Text>
+              <Text style={styles.paymentSubtitle}>Pay with Khalti</Text>
             </View>
           </View>
           <Ionicons
@@ -173,9 +238,9 @@ export default function CheckoutScreen() {
             size={24}
             color={Colors.light.tint}
           />
-        </TouchableOpacity>
+        </View>
 
-        {/* Disabled Online Payment Option (Visual Only) */}
+        {/* Disabled Card Payment Option (Visual Only) */}
         <View style={[styles.paymentOption, { opacity: 0.5 }]}>
           <View style={styles.paymentRow}>
             <Ionicons
@@ -199,9 +264,9 @@ export default function CheckoutScreen() {
         <Text style={styles.sectionTitle}>Payment Details</Text>
         <View style={styles.card}>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Ticket Price (1x)</Text>
+            <Text style={styles.rowLabel}>Ticket Price ({quantity}x)</Text>
             <Text style={styles.rowValue}>
-              {event.currency} {price.toLocaleString()}
+              {event.currency} {total.toLocaleString()}
             </Text>
           </View>
           <View style={[styles.divider]} />
@@ -407,5 +472,23 @@ const styles = StyleSheet.create({
   linkText: {
     color: Colors.light.tint,
     fontWeight: "600",
+  },
+  quantityControl: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  quantityButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#F1F5F9",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  quantityText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: Colors.light.text,
   },
 });

@@ -331,7 +331,7 @@ export default function EventDetails() {
           <Text style={styles.priceValue}>
             {event.price === 0
               ? "Free"
-              : `${event.currency || "USD"} ${event.price?.toLocaleString()}`}
+              : `${event.currency || "NPR"} ${event.price?.toLocaleString()}`}
           </Text>
         </View>
         <TouchableOpacity

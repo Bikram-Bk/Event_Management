@@ -84,7 +84,7 @@ export default function EventCard({ event }: EventCardProps) {
           <Text style={styles.priceText}>
             {Number(event.price) === 0
               ? "Free"
-              : `${event.currency || "USD"} ${Number(event.price)?.toFixed(0)}`}
+              : `${event.currency || "NPR"} ${Number(event.price)?.toFixed(0)}`}
           </Text>
         </View>
       </View>
@@ -101,9 +101,7 @@ export default function EventCard({ event }: EventCardProps) {
         <View style={styles.footerRow}>
           <View style={styles.locationRow}>
             <Ionicons name="location-outline" size={14} color="#CCCCCC" />
-            <Text style={styles.infoText}>
-              {event.city || "Virtual"}
-            </Text>
+            <Text style={styles.infoText}>{event.city || "Virtual"}</Text>
           </View>
           {event.organizer && (
             <View style={styles.organizerRow}>

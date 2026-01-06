@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Image,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,12 +14,28 @@ import { Colors } from "../../constants/Colors";
 import { useAuth } from "../../context/AuthContext";
 import { useUserEvents } from "../../hooks/use-attendees";
 import { useGetUser } from "../../hooks/use-get-user";
+import { useState, useCallback } from "react";
 
 export default function ProfileTab() {
   const router = useRouter();
   const { signOut } = useAuth();
-  const { data: userData, isLoading: userLoading } = useGetUser();
-  const { data: userEvents, isLoading: eventsLoading } = useUserEvents();
+  const {
+    data: userData,
+    isLoading: userLoading,
+    refetch: refetchUser,
+  } = useGetUser();
+  const {
+    data: userEvents,
+    isLoading: eventsLoading,
+    refetch: refetchEvents,
+  } = useUserEvents();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([refetchUser(), refetchEvents()]);
+    setRefreshing(false);
+  }, [refetchUser, refetchEvents]);
 
   if (userLoading || eventsLoading) {
     return (
@@ -30,11 +47,21 @@ export default function ProfileTab() {
 
   const user = userData?.data;
   const events = userEvents || [];
+  // @ts-ignore
+  const balance = user?.balance ? Number(user.balance) : 0;
+  const formattedBalance = "NPR " + balance.toLocaleString();
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 40 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[Colors.light.tint]}
+        />
+      }
     >
       {/* Header Section */}
       <View style={styles.header}>
@@ -60,18 +87,37 @@ export default function ProfileTab() {
         </TouchableOpacity>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Following</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Followers</Text>
+          <Text style={[styles.statNumber, { color: Colors.light.tint }]}>
+            {formattedBalance}
+          </Text>
+          <Text style={styles.statLabel}>My Earnings</Text>
         </View>
       </View>
 
       {/* Menu Section */}
       <View style={styles.menuContainer}>
+        {/* Earnings Button */}
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push("/earnings")}
+        >
+          <Ionicons name="wallet-outline" size={22} color="#333" />
+          <Text style={styles.menuText}>View My Earnings</Text>
+          <Ionicons name="chevron-forward" size={18} color="#ccc" />
+        </TouchableOpacity>
+
+        {/* Admin Settings */}
+        {user?.role === "ADMIN" && (
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => router.push("/settings/commission")}
+          >
+            <Ionicons name="options-outline" size={22} color="#333" />
+            <Text style={styles.menuText}>Commission Settings</Text>
+            <Ionicons name="chevron-forward" size={18} color="#ccc" />
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity style={styles.menuItem}>
           <Ionicons name="settings-outline" size={22} color="#333" />
           <Text style={styles.menuText}>Settings</Text>
@@ -184,81 +230,6 @@ const styles = StyleSheet.create({
     height: "60%",
     backgroundColor: "#f0f0f0",
     alignSelf: "center",
-  },
-  sectionHeader: {
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1a1a1a",
-  },
-  eventsScrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    gap: 16,
-  },
-  eventCard: {
-    width: 220,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  eventImage: {
-    width: "100%",
-    height: 120,
-    backgroundColor: "#eee",
-  },
-  eventInfo: {
-    padding: 12,
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1a1a1a",
-    marginBottom: 4,
-  },
-  eventDate: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 8,
-  },
-  statusBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  statusRegistered: {
-    backgroundColor: "#E6F4EA",
-  },
-  statusWaitlist: {
-    backgroundColor: "#FEF3C7",
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#1E4620", // dark green
-    textTransform: "uppercase",
-  },
-  emptyEvents: {
-    alignItems: "center",
-    padding: 20,
-    marginBottom: 20,
-  },
-  emptyText: {
-    color: "#999",
-    marginBottom: 8,
-  },
-  browseText: {
-    color: Colors.light.tint,
-    fontWeight: "600",
   },
   menuContainer: {
     marginHorizontal: 20,
