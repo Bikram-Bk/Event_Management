@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 
 const API_URL =
@@ -22,6 +22,7 @@ export function useEvents(filters?: {
   limit?: number;
   offset?: number;
   sortBy?: string;
+  search?: string;
 }) {
   return useQuery({
     queryKey: ["events", filters],
@@ -41,6 +42,7 @@ export function useEvents(filters?: {
       if (filters?.limit) params.append("limit", filters.limit.toString());
       if (filters?.offset) params.append("offset", filters.offset.toString());
       if (filters?.sortBy) params.append("sortBy", filters.sortBy);
+      if (filters?.search) params.append("search", filters.search);
 
       const response = await fetch(`${API_URL}/api/events?${params}`);
       if (!response.ok) {
@@ -49,6 +51,7 @@ export function useEvents(filters?: {
       const data = await response.json();
       return data;
     },
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -87,6 +90,36 @@ export function useCreateEvent() {
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to create event");
+      }
+
+      return await response.json();
+    },
+    onSuccess: () => {
+      // Invalidate events list to refetch
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    },
+  });
+}
+
+// Request event mutation (for regular users)
+export function useRequestEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (eventData: any) => {
+      const token = await getAuthToken();
+      const response = await fetch(`${API_URL}/api/events/request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to submit event request");
       }
 
       return await response.json();

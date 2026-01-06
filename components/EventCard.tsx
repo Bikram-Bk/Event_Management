@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { Colors, Layout } from "../constants/Colors";
 
 interface EventCardProps {
@@ -19,6 +19,10 @@ interface EventCardProps {
       name: string;
       icon: string;
       color: string;
+    };
+    organizer?: {
+      username: string;
+      avatar?: string;
     };
     _count?: {
       attendees: number;
@@ -94,11 +98,21 @@ export default function EventCard({ event }: EventCardProps) {
           {event.title}
         </Text>
 
-        <View style={styles.locationRow}>
-          <Ionicons name="location-outline" size={16} color="#CCCCCC" />
-          <Text style={styles.locationText}>
-            {event.city || "Virtual Event"}
-          </Text>
+        <View style={styles.footerRow}>
+          <View style={styles.locationRow}>
+            <Ionicons name="location-outline" size={14} color="#CCCCCC" />
+            <Text style={styles.infoText}>
+              {event.city || "Virtual"}
+            </Text>
+          </View>
+          {event.organizer && (
+            <View style={styles.organizerRow}>
+              <Ionicons name="person-outline" size={14} color="#CCCCCC" />
+              <Text style={styles.infoText} numberOfLines={1}>
+                {event.organizer.username}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -195,14 +209,25 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
+  footerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
   locationRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
   },
-  locationText: {
+  organizerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flexShrink: 1,
+  },
+  infoText: {
     color: "#E2E8F0",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
   },
 });

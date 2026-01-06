@@ -25,7 +25,7 @@ export default function WelcomeScreen() {
         <View style={styles.iconContainer}>
           <Ionicons name="sparkles" size={60} color="#fff" />
         </View>
-        <Text style={styles.title}>EventHub</Text>
+        <Text style={styles.title}>Evently</Text>
         <Text style={styles.tagline}>Discover. Create. Celebrate.</Text>
       </View>
 
