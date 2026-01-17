@@ -241,7 +241,7 @@ export default function CheckoutScreen() {
         </View>
 
         {/* Disabled Card Payment Option (Visual Only) */}
-        <View style={[styles.paymentOption, { opacity: 0.5 }]}>
+        {/* <View style={[styles.paymentOption, { opacity: 0.5 }]}>
           <View style={styles.paymentRow}>
             <Ionicons
               name="card-outline"
@@ -258,7 +258,7 @@ export default function CheckoutScreen() {
             size={24}
             color={Colors.light.secondary}
           />
-        </View>
+        </View> */}
 
         {/* Price Breakdown */}
         <Text style={styles.sectionTitle}>Payment Details</Text>

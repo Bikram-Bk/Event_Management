@@ -1,20 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 import Constants from "expo-constants";
+import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
+  RefreshControl,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
-  StatusBar,
-  RefreshControl,
 } from "react-native";
-import { useUserEvents } from "../../hooks/use-attendees";
-import { useState, useCallback } from "react";
 import { Colors } from "../../constants/Colors";
+import { useUserEvents } from "../../hooks/use-attendees";
 
 const API_URL =
   Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
@@ -37,7 +37,7 @@ export default function MyEventsScreen() {
       <View style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color={Colors.light.tint} />
       </View>
-    );
+    ); 
   }
 
   const registeredEvents = events || [];
@@ -48,7 +48,7 @@ export default function MyEventsScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Events</Text>
+        <Text style={styles.headerTitle}>My Bookings</Text>
       </View>
 
       <ScrollView
@@ -60,8 +60,7 @@ export default function MyEventsScreen() {
             onRefresh={onRefresh}
             colors={[Colors.light.tint]}
           />
-        }
-      >
+        }>
         {registeredEvents.length > 0 ? (
           registeredEvents.map((registration: any) => {
             const event = registration.event;
@@ -69,8 +68,7 @@ export default function MyEventsScreen() {
               <TouchableOpacity
                 key={registration.id}
                 style={styles.eventCard}
-                onPress={() => router.push(`/event/${event.id}`)}
-              >
+                onPress={() => router.push(`/event/${event.id}`)}>
                 <Image
                   source={{
                     uri: event.coverImage
@@ -93,8 +91,7 @@ export default function MyEventsScreen() {
                         registration.status === "REGISTERED"
                           ? styles.statusRegistered
                           : styles.statusWaitlist,
-                      ]}
-                    >
+                      ]}>
                       <Text style={styles.statusText}>
                         {registration.status}
                       </Text>
@@ -145,8 +142,7 @@ export default function MyEventsScreen() {
             <Text style={styles.emptyText}>No registered events yet</Text>
             <TouchableOpacity
               style={styles.browseButton}
-              onPress={() => router.push("/(tabs)")}
-            >
+              onPress={() => router.push("/(tabs)")}>
               <Text style={styles.browseButtonText}>Browse Events</Text>
             </TouchableOpacity>
           </View>
