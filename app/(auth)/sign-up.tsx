@@ -13,8 +13,41 @@ export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string }>({});
+
+  const validate = () => {
+    const newErrors: { name?: string; email?: string; password?: string } = {};
+    
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!name.trim()) {
+      newErrors.name = 'Full name is required';
+    } else if (!nameRegex.test(name)) {
+      newErrors.name = 'Name should only contain letters';
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!emailRegex.test(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<> ]).{8,}$/;
+      if (!passwordRegex.test(password)) {
+        newErrors.password = 'Password must be at least 8 characters with lowercase, number, and special character';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSignUp = () => {
+    if (!validate()) return;
+
     registerMutation.mutate(
       { name, email, password },
       {
@@ -43,19 +76,23 @@ export default function SignUpScreen() {
         <Text style={styles.subtitle}>Start your journey with us today!</Text>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+          <View style={[styles.inputContainer, errors.name && styles.inputError]}>
+            <Ionicons name="person-outline" size={20} color={errors.name ? "#FF3B30" : "#666"} style={styles.inputIcon} />
             <TextInput 
               style={styles.input} 
               placeholder="Full Name" 
               placeholderTextColor="#999"
               value={name}
-              onChangeText={setName}
+              onChangeText={(text) => {
+                setName(text);
+                if (errors.name) setErrors({ ...errors, name: undefined });
+              }}
             />
           </View>
+          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+          <View style={[styles.inputContainer, errors.email && styles.inputError]}>
+            <Ionicons name="mail-outline" size={20} color={errors.email ? "#FF3B30" : "#666"} style={styles.inputIcon} />
             <TextInput 
               style={styles.input} 
               placeholder="Email" 
@@ -63,24 +100,32 @@ export default function SignUpScreen() {
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                if (errors.email) setErrors({ ...errors, email: undefined });
+              }}
             />
           </View>
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+          <View style={[styles.inputContainer, errors.password && styles.inputError]}>
+            <Ionicons name="lock-closed-outline" size={20} color={errors.password ? "#FF3B30" : "#666"} style={styles.inputIcon} />
             <TextInput 
               style={styles.input} 
               placeholder="Password" 
               placeholderTextColor="#999"
               secureTextEntry={!showPassword}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (errors.password) setErrors({ ...errors, password: undefined });
+              }}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#666" />
             </TouchableOpacity>
           </View>
+          {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
           <TouchableOpacity 
             style={[styles.button, registerMutation.isPending && styles.buttonDisabled]} 
@@ -152,6 +197,19 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 56,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  inputError: {
+    borderColor: '#FF3B30',
+    backgroundColor: '#FFF5F5',
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: 12,
+    marginTop: -8,
+    marginLeft: 4,
+    marginBottom: 8,
   },
   inputIcon: {
     marginRight: 12,
