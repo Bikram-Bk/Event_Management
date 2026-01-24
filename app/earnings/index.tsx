@@ -4,14 +4,17 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
@@ -227,45 +230,57 @@ export default function EarningsDashboard() {
           </View>
         }
       />
-
+ 
       {/* Withdrawal Modal */}
-      {withdrawModalVisible && (
-        <View style={styles.modalOverlay}>
+      <Modal 
+        visible={withdrawModalVisible} 
+        transparent 
+        animationType="fade"
+        onRequestClose={() => setWithdrawModalVisible(false)}
+      >
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalOverlay}
+        >
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>Withdraw Funds</Text>
-            <TextInput
-              style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-              placeholder="Enter Amount (NPR)"
-              placeholderTextColor={colors.secondary}
-              keyboardType="numeric"
-              value={withdrawAmount}
-              onChangeText={setWithdrawAmount}
-            />
-            <TextInput
-              style={[styles.input, { color: colors.text, borderColor: colors.border }]}
-              placeholder="Khalti/Wallet Number"
-              placeholderTextColor={colors.secondary}
-              keyboardType="phone-pad"
-              value={khaltiNumber}
-              onChangeText={setKhaltiNumber}
-            />
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                onPress={() => setWithdrawModalVisible(false)}
-                style={styles.cancelBtn}
-              >
-                <Text style={{ color: colors.secondary }}>Cancel</Text>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>Withdraw Funds</Text>
+              <TouchableOpacity onPress={() => setWithdrawModalVisible(false)}>
+                <Ionicons name="close" size={24} color={colors.secondary} />
               </TouchableOpacity>
+            </View>
+            
+            <View style={styles.modalBody}>
+              <Text style={[styles.inputLabel, { color: colors.secondary }]}>Amount (NPR)</Text>
+              <TextInput
+                style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
+                placeholder="Enter Amount"
+                placeholderTextColor={colors.secondary}
+                keyboardType="numeric"
+                value={withdrawAmount}
+                onChangeText={setWithdrawAmount}
+              />
+              
+              <Text style={[styles.inputLabel, { color: colors.secondary }]}>Khalti/Wallet Number</Text>
+              <TextInput
+                style={[styles.input, { color: colors.text, borderColor: colors.border, backgroundColor: colors.background }]}
+                placeholder="Phone Number"
+                placeholderTextColor={colors.secondary}
+                keyboardType="phone-pad"
+                value={khaltiNumber}
+                onChangeText={setKhaltiNumber}
+              />
+ 
               <TouchableOpacity
                 onPress={handleWithdraw}
                 style={[styles.confirmBtn, { backgroundColor: colors.tint }]}
               >
-                <Text style={{ color: "#fff" }}>Confirm</Text>
+                <Text style={styles.confirmBtnText}>Confirm Withdrawal</Text>
               </TouchableOpacity>
             </View>
           </View>
-        </View>
-      )}
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -274,133 +289,165 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#F8F9FA" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: {
-    backgroundColor: Colors.light.tint,
     paddingTop: 60,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    paddingBottom: 40,
+    paddingHorizontal: 25,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 25,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    elevation: 10,
   },
-  backButton: { position: "absolute", top: 50, left: 20, padding: 10 },
+  backButton: { position: "absolute", top: 55, left: 15, padding: 10, zIndex: 10 },
   headerTitle: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1,
     marginBottom: 20,
   },
   balanceLabel: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 14,
+    color: "rgba(255,255,255,0.7)",
+    fontSize: 13,
+    fontWeight: "600",
     marginBottom: 5,
   },
-  balanceValue: { color: "#fff", fontSize: 32, fontWeight: "bold" },
-
+  balanceValue: { 
+    color: "#fff", 
+    fontSize: 36, 
+    fontWeight: "900", 
+    letterSpacing: -1,
+    flexWrap: 'wrap',
+    textAlign: 'center'
+  },
+ 
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-    marginLeft: 20,
-    marginBottom: 10,
+    fontWeight: "800",
+    marginHorizontal: 20,
+    marginTop: 10,
+    marginBottom: 15,
+    letterSpacing: -0.5,
   },
-  list: { padding: 20 },
-
+  list: { paddingBottom: 40 },
+ 
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    borderRadius: 20,
     padding: 16,
     marginBottom: 12,
+    marginHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#000",
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
-    shadowRadius: 5,
-    elevation: 2,
+    shadowRadius: 10,
+    elevation: 3,
   },
   cardIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#F3F4F6",
+    width: 52,
+    height: 52,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
   },
-  cardContent: { flex: 1 },
-  cardTitle: { fontSize: 16, fontWeight: "600", color: "#1F2937" },
-  cardSubtitle: { fontSize: 12, color: "#6B7280", marginTop: 2 },
-  cardDate: { fontSize: 11, color: "#9CA3AF", marginBottom: 2 },
-
-  cardAmount: { alignItems: "flex-end" },
-  amountText: { fontSize: 16, fontWeight: "bold", color: "#10B981" },
-  feeText: { fontSize: 11, color: "#EF4444" },
-
-  empty: { alignItems: "center", marginTop: 50 },
-  emptyText: { marginTop: 10, color: "#9CA3AF" },
-
+  cardContent: { flex: 1, flexShrink: 1 },
+  cardTitle: { fontSize: 16, fontWeight: "700" },
+  cardSubtitle: { fontSize: 12, marginTop: 4, opacity: 0.7 },
+  cardDate: { fontSize: 11, fontWeight: "600", opacity: 0.5 },
+ 
+  cardAmount: { alignItems: "flex-end", marginLeft: 10 },
+  amountText: { fontSize: 17, fontWeight: "800", color: "#10B981" },
+  feeText: { fontSize: 10, color: "#EF4444", marginTop: 2, fontWeight: "600" },
+ 
+  empty: { alignItems: "center", marginTop: 60, padding: 40 },
+  emptyText: { marginTop: 12, fontSize: 15, fontWeight: "600" },
+ 
   withdrawButton: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    marginTop: 10,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingVertical: 10,
+    paddingHorizontal: 22,
+    borderRadius: 14,
+    marginTop: 20,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.4)",
+    borderColor: "rgba(255,255,255,0.3)",
   },
-  withdrawText: { color: "#fff", fontWeight: "600" },
-
+  withdrawText: { color: "#fff", fontWeight: "700", fontSize: 14 },
+ 
   payoutCard: {
-    backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 12,
-    marginRight: 10,
-    minWidth: 120,
+    padding: 18,
+    borderRadius: 20,
+    marginRight: 12,
+    minWidth: 150,
     borderWidth: 1,
-    borderColor: "#eee",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  payoutAmount: { fontWeight: "bold", fontSize: 16, color: "#333" },
-  payoutStatus: { fontSize: 12, fontWeight: "600", marginVertical: 4 },
-  payoutDate: { fontSize: 10, color: "#999" },
-
+  payoutAmount: { fontWeight: "800", fontSize: 18 },
+  payoutStatus: { fontSize: 11, fontWeight: "800", marginTop: 8, textTransform: "uppercase", letterSpacing: 0.5 },
+  payoutDate: { fontSize: 10, fontWeight: "600", marginTop: 4, opacity: 0.5 },
+ 
   modalOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1000,
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#fff",
-    width: "80%",
-    padding: 20,
-    borderRadius: 12,
-    alignItems: "center",
+    width: "100%",
+    padding: 24,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
     shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 20,
   },
-  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: { fontSize: 22, fontWeight: "900", letterSpacing: -0.5 },
+  modalBody: {},
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
   input: {
     width: "100%",
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 16,
+    padding: 16,
     fontSize: 16,
+    fontWeight: "600",
     marginBottom: 20,
   },
-  modalActions: { flexDirection: "row", gap: 10 },
-  cancelBtn: { padding: 10, flex: 1, alignItems: "center" },
   confirmBtn: {
-    padding: 10,
-    flex: 1,
+    padding: 18,
+    borderRadius: 18,
     alignItems: "center",
-    backgroundColor: Colors.light.tint,
-    borderRadius: 8,
+    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
+  confirmBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 });

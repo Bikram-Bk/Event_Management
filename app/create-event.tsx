@@ -3,8 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -21,14 +21,18 @@ import {
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
 import { useCategories } from "../hooks/use-categories";
-import { useRequestEvent } from "../hooks/use-events";
+import { useEvent, useRequestEvent, useUpdateEvent } from "../hooks/use-events";
 
 export default function CreateEventScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const isEditing = !!id;
   const router = useRouter();
   const { actualTheme } = useTheme();
   const colors = Colors[actualTheme];
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: existingEvent, isLoading: eventLoading } = useEvent(id as string);
   const createEventMutation = useRequestEvent();
+  const updateEventMutation = useUpdateEvent();
   const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -49,6 +53,29 @@ export default function CreateEventScreen() {
     coverImage: "",
     images: [] as string[],
   });
+
+  useEffect(() => {
+    if (existingEvent) {
+      setFormData({
+        title: existingEvent.title || "",
+        description: existingEvent.description || "",
+        categoryId: existingEvent.categoryId || "",
+        startDate: new Date(existingEvent.startDate),
+        endDate: new Date(existingEvent.endDate),
+        venueName: existingEvent.venueName || "",
+        address: existingEvent.address || "",
+        city: existingEvent.city || "",
+        state: existingEvent.state || "",
+        isVirtual: existingEvent.isVirtual || false,
+        isFree: existingEvent.isFree ?? true,
+        price: existingEvent.price?.toString() || "0",
+        currency: existingEvent.currency || "NPR",
+        capacity: existingEvent.capacity?.toString() || "",
+        coverImage: existingEvent.coverImage || "",
+        images: existingEvent.images || [],
+      });
+    }
+  }, [existingEvent]);
 
   const [pickerState, setPickerState] = useState<{
     show: boolean;
@@ -102,7 +129,7 @@ export default function CreateEventScreen() {
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [16, 9],
         quality: 0.8,
@@ -122,7 +149,7 @@ export default function CreateEventScreen() {
   const pickGalleryImages = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsMultipleSelection: true,
         selectionLimit: 5,
         quality: 0.8,
@@ -211,23 +238,38 @@ export default function CreateEventScreen() {
     }
 
     try {
-      await createEventMutation.mutateAsync({
-        ...formData,
-        price: formData.isFree ? 0 : parseFloat(formData.price) || 0,
-        capacity: formData.capacity ? parseInt(formData.capacity) : null,
-        startDate: formData.startDate.toISOString(),
-        endDate: formData.endDate.toISOString(),
-      });
-
-      Alert.alert("Success", "Event request submitted successfully!", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      if (isEditing) {
+        await updateEventMutation.mutateAsync({
+          id: id as string,
+          data: {
+            ...formData,
+            price: formData.isFree ? 0 : parseFloat(formData.price) || 0,
+            capacity: formData.capacity ? parseInt(formData.capacity) : null,
+            startDate: formData.startDate.toISOString(),
+            endDate: formData.endDate.toISOString(),
+          },
+        });
+        Alert.alert("Success", "Event updated successfully!", [
+          { text: "OK", onPress: () => router.back() },
+        ]);
+      } else {
+        await createEventMutation.mutateAsync({
+          ...formData,
+          price: formData.isFree ? 0 : parseFloat(formData.price) || 0,
+          capacity: formData.capacity ? parseInt(formData.capacity) : null,
+          startDate: formData.startDate.toISOString(),
+          endDate: formData.endDate.toISOString(),
+        });
+        Alert.alert("Success", "Event request submitted successfully!", [
+          { text: "OK", onPress: () => router.back() },
+        ]);
+      }
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to submit event request");
+      Alert.alert("Error", error.message || `Failed to ${isEditing ? 'update' : 'submit'} event request`);
     }
   };
 
-  if (categoriesLoading) {
+  if (categoriesLoading || (isEditing && eventLoading)) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.tint} />
@@ -252,7 +294,7 @@ export default function CreateEventScreen() {
         >
           <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Request Event</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{isEditing ? 'Edit Event' : 'Request Event'}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -557,10 +599,10 @@ export default function CreateEventScreen() {
           onPress={handleSubmit}
           disabled={createEventMutation.isPending || isUploading}
         >
-          {createEventMutation.isPending ? (
+          {createEventMutation.isPending || updateEventMutation.isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.submitButtonText}>Submit Request</Text>
+            <Text style={styles.submitButtonText}>{isEditing ? 'Update Event' : 'Submit Request'}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>

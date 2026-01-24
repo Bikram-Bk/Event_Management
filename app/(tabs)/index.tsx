@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -100,7 +101,15 @@ export default function DiscoverScreen() {
     if (hour < 18) return "Good Afternoon";
     return "Good Evening";
   };
-
+ 
+  const getFullImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    const apiUrl =
+      Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
+    return `${apiUrl}${path}`;
+  };
+ 
   const isLoadingInitial = eventsLoading && !eventsData;
 
   return (
@@ -112,7 +121,7 @@ export default function DiscoverScreen() {
         <View style={styles.headerLeft}>
           <View style={styles.avatarContainer}>
             {user?.avatar ? (
-              <Image source={{ uri: user.avatar }} style={styles.avatar} />
+              <Image source={{ uri: getFullImageUrl(user.avatar) || undefined }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatarPlaceholder, { backgroundColor: colors.border }]}>
                 <Ionicons name="person" size={20} color={colors.tint} />

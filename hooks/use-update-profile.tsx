@@ -5,7 +5,7 @@ interface UpdateProfilePayload {
   username?: string;
   email?: string;
   phone?: string;
-  avatar?: string; 
+  avatar?: string; // This can be a local URI that needs uploading
 }
 
 export const useUpdateProfile = () => {
@@ -16,43 +16,53 @@ export const useUpdateProfile = () => {
       const token = await AsyncStorage.getItem("accessToken");
       if (!token) throw new Error("No access token found");
 
-      let body: any;
-      let headers: Record<string, string> = {
-        Authorization: `Bearer ${token}`,
-      };
+      let finalPayload = { ...payload };
 
-      if (payload.avatar) {
-        // Use FormData if avatar is present
+      // Step 1: Handle Image Upload if a local URI is provided
+      if (payload.avatar && (payload.avatar.startsWith('file://') || payload.avatar.startsWith('content://'))) {
         const formData = new FormData();
-        if (payload.username) formData.append("username", payload.username);
-        if (payload.email) formData.append("email", payload.email);
-        if (payload.phone) formData.append("phone", payload.phone);
-
         const uri = payload.avatar;
-        const filename = uri.split("/").pop();
-        const match = /\.(\w+)$/.exec(filename || "");
-        const type = match ? `image/${match[1]}` : `image`;
+        const filename = uri.split("/").pop() || "avatar.jpg";
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image/jpeg`;
 
         // @ts-ignore
-        formData.append("avatar", {
+        formData.append("file", {
           uri,
           name: filename,
           type,
         });
-        body = formData;
-        // Fetch will set Content-Type to multipart/form-data with boundary
-      } else {
-        // Use JSON for textual updates only
-        headers["Content-Type"] = "application/json";
-        body = JSON.stringify(payload);
+
+        const uploadResponse = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/api/upload`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        const uploadData = await uploadResponse.json();
+        if (!uploadResponse.ok || !uploadData.success) {
+          throw new Error(uploadData.message || "Failed to upload image");
+        }
+
+        // Use the resulting server URL for the final update
+        finalPayload.avatar = uploadData.data.url;
       }
 
+      // Step 2: Update Profile via JSON API
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/api/users/update-profile`,
         {
           method: "PATCH",
-          headers,
-          body,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(finalPayload),
         }
       );
 

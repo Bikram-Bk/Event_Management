@@ -3,15 +3,15 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
@@ -175,6 +175,12 @@ export default function RequestsTab() {
                       {request.status === "DRAFT" ? "Pending" : request.status}
                     </Text>
                   </View>
+                  <TouchableOpacity 
+                    style={[styles.cardEditButton, { backgroundColor: colors.background }]}
+                    onPress={() => router.push(`/create-event?id=${request.id}`)}
+                  >
+                    <Ionicons name="pencil-outline" size={16} color={colors.tint} />
+                  </TouchableOpacity>
                 </View>
 
                 <Text style={[styles.cardDate, { color: colors.secondary }]}>
@@ -402,5 +408,14 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  cardEditButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#eee",
   },
 });

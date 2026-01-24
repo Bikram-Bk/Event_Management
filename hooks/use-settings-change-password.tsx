@@ -13,7 +13,7 @@ export const useSettingsChangePassword = () => {
       if (!token) throw new Error("No access token found");
 
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/api/users/change-password`,
+        `${process.env.EXPO_PUBLIC_API_URL}/api/auth/change-password`,
         {
           method: "POST",
           headers: {

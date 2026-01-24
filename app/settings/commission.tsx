@@ -4,14 +4,14 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
@@ -98,7 +98,8 @@ export default function CommissionSettings() {
         >
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.text }]}>Commission Settings</Text>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>Commission Settings</Text>
+        <View style={{ width: 40 }} /> 
       </View>
 
       <View style={[styles.card, { backgroundColor: colors.card }]}>
@@ -142,13 +143,21 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 20,
-    backgroundColor: "#fff",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
   },
-  backButton: { marginRight: 15 },
-  title: { fontSize: 20, fontWeight: "bold", color: "#333" },
+  backButton: { 
+    padding: 5,
+  },
+  title: { 
+    fontSize: 20, 
+    fontWeight: "700", 
+    flex: 1,
+    textAlign: 'center',
+  },
   card: {
     margin: 20,
     backgroundColor: "#fff",

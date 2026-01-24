@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
@@ -21,7 +22,6 @@ import { useGetUser } from "../../hooks/use-get-user";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
   },
   center: {
     justifyContent: "center",
@@ -147,7 +147,15 @@ export default function ProfileTab() {
     isLoading: eventsLoading,
     refetch: refetchEvents,
   } = useUserEvents();
-  
+ 
+  const getFullImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    const apiUrl =
+      Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
+    return `${apiUrl}${path}`;
+  };
+ 
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
@@ -175,7 +183,7 @@ export default function ProfileTab() {
       <StatusBar barStyle={actualTheme === 'dark' ? "light-content" : "dark-content"} />
       <ScrollView
         style={styles.container}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -188,7 +196,7 @@ export default function ProfileTab() {
         <View style={[styles.header, { backgroundColor: colors.card }]}>
           <View style={[styles.avatarContainer, { backgroundColor: colors.tint, borderColor: colors.border }]}>
             {user?.avatar ? (
-              <Image source={{ uri: user.avatar }} style={styles.avatar} />
+              <Image source={{ uri: getFullImageUrl(user.avatar) || undefined }} style={styles.avatar} />
             ) : (
               <Ionicons name="person" size={50} color="#fff" />
             )}

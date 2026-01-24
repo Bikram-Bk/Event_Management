@@ -3,13 +3,12 @@ import Constants from "expo-constants";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
@@ -32,6 +31,14 @@ const AttendeeList = ({ eventId }: { eventId: string }) => {
     return <Text style={[styles.emptyText, { color: colors.secondary }]}>No attendees yet.</Text>;
   }
 
+  const getFullImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    const apiUrl =
+      Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
+    return `${apiUrl}${path}`;
+  };
+
   return (
     <View style={styles.attendeeList}>
       {attendees.map((attendee: any) => (
@@ -39,7 +46,7 @@ const AttendeeList = ({ eventId }: { eventId: string }) => {
           <Image
             source={{
               uri:
-                attendee.user?.avatar ||
+                getFullImageUrl(attendee.user?.avatar) ||
                 "https://ui-avatars.com/api/?name=" +
                   (attendee.user?.username || "User"),
             }}
@@ -246,19 +253,25 @@ export default function PlannerDetails() {
         {event.status === "DRAFT" ? (
           <TouchableOpacity
             style={[styles.editButton, { backgroundColor: colors.border }]}
-            onPress={() =>
-              Alert.alert("Coming Soon", "Edit functionality coming soon")
-            }
+            onPress={() => router.push(`/create-event?id=${event.id}`)}
           >
             <Text style={[styles.editButtonText, { color: colors.text }]}>Edit Request</Text>
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity
-            style={[styles.editButton, { backgroundColor: colors.tint }]}
-            onPress={() => {}}
-          >
-            <Text style={styles.editButtonText}>Manage Attendees</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <TouchableOpacity
+              style={[styles.editButton, { backgroundColor: colors.border, flex: 1 }]}
+              onPress={() => router.push(`/create-event?id=${event.id}`)}
+            >
+              <Text style={[styles.editButtonText, { color: colors.text }]}>Edit Event</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.editButton, { backgroundColor: colors.tint, flex: 1 }]}
+              onPress={() => {}}
+            >
+              <Text style={styles.editButtonText}>Manage Attendees</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     </View>

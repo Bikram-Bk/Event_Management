@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -44,6 +45,11 @@ export default function ProfileSettingsScreen() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+ 
+  // Password Visibility States
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const user = userData?.data;
   const colors = Colors[actualTheme];
@@ -56,7 +62,7 @@ export default function ProfileSettingsScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
@@ -88,9 +94,37 @@ export default function ProfileSettingsScreen() {
 
   const handleUpdateInfo = async () => {
     if (!activeField) return;
+    const value = inputValue.trim();
+
+    // Field-specific validation matching sign-up logic
+    if (activeField === "username") {
+      const nameRegex = /^[a-zA-Z\s]+$/;
+      if (!value) {
+        Alert.alert("Error", "Full name is required");
+        return;
+      } else if (!nameRegex.test(value)) {
+        Alert.alert("Error", "Name should only contain letters");
+        return;
+      }
+    } else if (activeField === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!value) {
+        Alert.alert("Error", "Email is required");
+        return;
+      } else if (!emailRegex.test(value)) {
+        Alert.alert("Error", "Please enter a valid email address");
+        return;
+      }
+    } else if (activeField === "phone") {
+      const phoneRegex = /^\d{10}$/;
+      if (value && !phoneRegex.test(value)) {
+        Alert.alert("Error", "Phone number must be exactly 10 digits");
+        return;
+      }
+    }
     
     try {
-      await updateProfile.mutateAsync({ [activeField]: inputValue });
+      await updateProfile.mutateAsync({ [activeField]: value });
       Alert.alert("Success", `${activeField.charAt(0).toUpperCase() + activeField.slice(1)} updated successfully!`);
       setIsInputModalVisible(false);
     } catch (error: any) {
@@ -146,7 +180,15 @@ export default function ProfileSettingsScreen() {
       ]
     );
   };
-
+ 
+  const getFullImageUrl = (path: string) => {
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    const apiUrl =
+      Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
+    return `${apiUrl}${path}`;
+  };
+ 
   const renderMenuItem = (
     icon: keyof typeof Ionicons.glyphMap,
     title: string,
@@ -185,7 +227,10 @@ export default function ProfileSettingsScreen() {
         <View style={[styles.profileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.avatarContainer}>
             {user?.avatar ? (
-              <Image source={{ uri: user.avatar }} style={styles.avatar} />
+              <Image 
+                source={{ uri: getFullImageUrl(user.avatar) || undefined }} 
+                style={styles.avatar} 
+              />
             ) : (
               <Ionicons name="person" size={40} color={colors.secondary} />
             )}
@@ -298,32 +343,49 @@ export default function ProfileSettingsScreen() {
             </View>
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               <Text style={styles.inputLabel}>Current Password</Text>
-              <TextInput
-                style={[styles.modalInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-                secureTextEntry
-                placeholder="Enter current password"
-                placeholderTextColor={colors.secondary}
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-              />
+              <View style={[styles.passwordInputContainer, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <TextInput
+                  style={[styles.flex1, { color: colors.text }]}
+                  secureTextEntry={!showCurrentPassword}
+                  placeholder="Enter current password"
+                  placeholderTextColor={colors.secondary}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                />
+                <TouchableOpacity onPress={() => setShowCurrentPassword(!showCurrentPassword)}>
+                  <Ionicons name={showCurrentPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.secondary} />
+                </TouchableOpacity>
+              </View>
+ 
               <Text style={[styles.inputLabel, { marginTop: 15 }]}>New Password</Text>
-              <TextInput
-                style={[styles.modalInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-                secureTextEntry
-                placeholder="Minimum 6 characters"
-                placeholderTextColor={colors.secondary}
-                value={newPassword}
-                onChangeText={setNewPassword}
-              />
+              <View style={[styles.passwordInputContainer, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <TextInput
+                  style={[styles.flex1, { color: colors.text }]}
+                  secureTextEntry={!showNewPassword}
+                  placeholder="Minimum 6 characters"
+                  placeholderTextColor={colors.secondary}
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                />
+                <TouchableOpacity onPress={() => setShowNewPassword(!showNewPassword)}>
+                  <Ionicons name={showNewPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.secondary} />
+                </TouchableOpacity>
+              </View>
+ 
               <Text style={[styles.inputLabel, { marginTop: 15 }]}>Confirm New Password</Text>
-              <TextInput
-                style={[styles.modalInput, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-                secureTextEntry
-                placeholder="Repeat new password"
-                placeholderTextColor={colors.secondary}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-              />
+              <View style={[styles.passwordInputContainer, { backgroundColor: colors.background, borderColor: colors.border }]}>
+                <TextInput
+                  style={[styles.flex1, { color: colors.text }]}
+                  secureTextEntry={!showConfirmPassword}
+                  placeholder="Repeat new password"
+                  placeholderTextColor={colors.secondary}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                />
+                <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.secondary} />
+                </TouchableOpacity>
+              </View>
               <TouchableOpacity
                 style={[styles.saveButton, { backgroundColor: colors.tint, marginTop: 30 }, changePassword.isPending && styles.disabledButton]}
                 onPress={handlePasswordChange}
@@ -376,6 +438,9 @@ export default function ProfileSettingsScreen() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  flex1: {
     flex: 1,
   },
   header: {
@@ -534,6 +599,14 @@ const styles = StyleSheet.create({
     padding: 18,
     borderWidth: 1,
     fontSize: 16,
+  },
+  passwordInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 4, // Reduce vertical padding to account for TextInput's own padding
+    borderWidth: 1,
   },
   saveButton: {
     padding: 18,
