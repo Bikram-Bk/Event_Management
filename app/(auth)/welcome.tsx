@@ -1,13 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors } from "../../constants/Colors";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect } from "react";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function WelcomeScreen() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -20,28 +24,28 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <View style={styles.iconContainer}>
+        <View style={[styles.iconContainer, { backgroundColor: colors.tint, shadowColor: colors.tint }]}>
           <Ionicons name="sparkles" size={60} color="#fff" />
         </View>
-        <Text style={styles.title}>Evently</Text>
-        <Text style={styles.tagline}>Discover. Create. Celebrate.</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Evently</Text>
+        <Text style={[styles.tagline, { color: colors.secondary }]}>Discover. Create. Celebrate.</Text>
       </View>
 
       <View style={styles.bottomContainer}>
         <TouchableOpacity
-          style={styles.buttonPrimary}
+          style={[styles.buttonPrimary, { backgroundColor: colors.tint, shadowColor: colors.tint }]}
           onPress={() => router.push("/(auth)/sign-up")}
         >
           <Text style={styles.buttonPrimaryText}>Get Started</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.buttonSecondary}
+          style={[styles.buttonSecondary, { backgroundColor: colors.card, borderColor: colors.border }]}
           onPress={() => router.push("/(auth)/sign-in")}
         >
-          <Text style={styles.buttonSecondaryText}>
+          <Text style={[styles.buttonSecondaryText, { color: colors.text }]}>
             I already have an account
           </Text>
         </TouchableOpacity>

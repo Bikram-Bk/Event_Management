@@ -2,17 +2,21 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { StatusBar, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   return (
-    <View style={{ flex: 1, paddingTop: insets.top }}>
+    <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: colors.background }}>
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: "#C5A572", // Gold tint
-          tabBarInactiveTintColor: "#8E8E93",
+          tabBarActiveTintColor: colors.tint,
+          tabBarInactiveTintColor: colors.secondary,
           tabBarStyle: {
             position: "absolute",
             bottom: 25,
@@ -20,19 +24,20 @@ export default function TabLayout() {
             right: 20,
 
             elevation: 5,
-            backgroundColor: "#fff",
+            backgroundColor: colors.card,
             borderRadius: 30, // Pill shape
             height: 60,
             paddingBottom: 0, // Center icons vertically
             borderTopWidth: 0,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
+            shadowOpacity: actualTheme === 'dark' ? 0.3 : 0.15,
             shadowRadius: 10,
             marginHorizontal: 12,
+            borderWidth: actualTheme === 'dark' ? 1 : 0,
+            borderColor: colors.border,
           },
-          tabBarShowLabel: false, // Cleaner look for floating tabs usually, or keep it if preferred. Let's keep label for clarity but style it? User said "floating type", usually implies minimal. Let's try hiding label or making it small. Let's keep default first but maybe adjust padding.
-          // Actually user didn't say hide label.
+          tabBarShowLabel: false,
         }}
       >
         <Tabs.Screen
@@ -174,7 +179,7 @@ export default function TabLayout() {
           }}
         />
       </Tabs>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle={actualTheme === 'dark' ? "light-content" : "dark-content"} />
     </View>
   );
 }

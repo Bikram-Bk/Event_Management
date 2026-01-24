@@ -1,22 +1,25 @@
-import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-} from "react-native";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "../../constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function CommissionSettings() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const [rate, setRate] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -80,44 +83,45 @@ export default function CommissionSettings() {
 
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Commission Settings</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Commission Settings</Text>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Platform Commission Rate (%)</Text>
-        <Text style={styles.description}>
+      <View style={[styles.card, { backgroundColor: colors.card }]}>
+        <Text style={[styles.label, { color: colors.text }]}>Platform Commission Rate (%)</Text>
+        <Text style={[styles.description, { color: colors.secondary }]}>
           This percentage will be deducted from ticket sales for events not
           owned by the Admin.
         </Text>
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.background : '#F9FAFB', borderColor: colors.border }]}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: colors.text }]}
             value={rate}
             onChangeText={setRate}
             keyboardType="numeric"
             placeholder="10"
+            placeholderTextColor={colors.secondary}
           />
-          <Text style={styles.percent}>%</Text>
+          <Text style={[styles.percent, { color: colors.secondary }]}>%</Text>
         </View>
 
         <TouchableOpacity
-          style={[styles.saveButton, saving && styles.disabledButton]}
+          style={[styles.saveButton, { backgroundColor: colors.tint }, saving && styles.disabledButton]}
           onPress={handleSave}
           disabled={saving}
         >

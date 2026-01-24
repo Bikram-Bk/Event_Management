@@ -7,9 +7,13 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function HelpSupportMenuScreen() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   const menuItems: {
     title: string;
@@ -44,21 +48,21 @@ export default function HelpSupportMenuScreen() {
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F8F9FA' }]}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help & Support</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Help & Support</Text>
         <View style={{ width: 44 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.menuContainer}>
+        <View style={[styles.menuContainer, { backgroundColor: colors.card }]}>
           {menuItems.map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -69,54 +73,54 @@ export default function HelpSupportMenuScreen() {
                 <View style={[styles.iconWrapper, { backgroundColor: item.color + "15" }]}>
                   <Ionicons name={item.icon} size={22} color={item.color} />
                 </View>
-                <Text style={styles.menuText}>{item.title}</Text>
+                <Text style={[styles.menuText, { color: colors.text }]}>{item.title}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#ccc" />
+              <Ionicons name="chevron-forward" size={18} color={colors.secondary} />
             </TouchableOpacity>
           ))}
         </View>
 
         <View style={styles.supportSection}>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           
           <View style={styles.infoTextContainer}>
-            <View style={styles.badge}>
+            <View style={[styles.badge, { backgroundColor: actualTheme === 'dark' ? colors.border : '#2196F310' }]}>
               <Ionicons name="headset-outline" size={14} color="#2196F3" />
               <Text style={styles.badgeText}>Support Center</Text>
             </View>
             
-            <Text style={styles.tagline}>We're here to help!</Text>
-            <Text style={styles.description}>
+            <Text style={[styles.tagline, { color: colors.text }]}>We're here to help!</Text>
+            <Text style={[styles.description, { color: colors.secondary }]}>
               Have questions about your booking or want to host an event? Our team is dedicated to providing you with the best experience.
             </Text>
 
             <View style={styles.availabilityList}>
               <View style={styles.availabilityItem}>
-                <View style={styles.smallIconWrapper}>
-                  <Ionicons name="time-outline" size={16} color="#666" />
+                <View style={[styles.smallIconWrapper, { backgroundColor: colors.card }]}>
+                  <Ionicons name="time-outline" size={16} color={colors.secondary} />
                 </View>
                 <View>
-                  <Text style={styles.availabilityLabel}>Support Hours</Text>
-                  <Text style={styles.availabilityValue}>24/7 Available</Text>
+                  <Text style={[styles.availabilityLabel, { color: colors.secondary }]}>Support Hours</Text>
+                  <Text style={[styles.availabilityValue, { color: colors.text }]}>24/7 Available</Text>
                 </View>
               </View>
               <View style={styles.availabilityItem}>
-                <View style={styles.smallIconWrapper}>
-                  <Ionicons name="flash-outline" size={16} color="#666" />
+                <View style={[styles.smallIconWrapper, { backgroundColor: colors.card }]}>
+                  <Ionicons name="flash-outline" size={16} color={colors.secondary} />
                 </View>
                 <View>
-                  <Text style={styles.availabilityLabel}>Response Time</Text>
-                  <Text style={styles.availabilityValue}>Under 1 hour</Text>
+                  <Text style={[styles.availabilityLabel, { color: colors.secondary }]}>Response Time</Text>
+                  <Text style={[styles.availabilityValue, { color: colors.text }]}>Under 1 hour</Text>
                 </View>
               </View>
             </View>
 
-            <View style={styles.commitmentSection}>
+            <View style={[styles.commitmentSection, { backgroundColor: colors.card }]}>
               <View style={styles.commitmentHeader}>
                 <Ionicons name="shield-checkmark" size={20} color="#4CAF50" />
-                <Text style={styles.commitmentTitle}>Our Commitment</Text>
+                <Text style={[styles.commitmentTitle, { color: colors.text }]}>Our Commitment</Text>
               </View>
-              <Text style={styles.commitmentText}>
+              <Text style={[styles.commitmentText, { color: colors.secondary }]}>
                 We strive to resolve all queries within 24 hours. Your satisfaction is our top priority in making Evently the best event platform.
               </Text>
               <View style={styles.signature}>

@@ -1,25 +1,25 @@
-import { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  ActivityIndicator,
-  Image,
-  TextInput,
-  Modal,
-  TouchableOpacity,
-  RefreshControl,
-  ScrollView,
-} from "react-native";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "../../constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import {
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from "react-native";
+import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function EarningsDashboard() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const [transactions, setTransactions] = useState([]);
   const [payouts, setPayouts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,20 +112,20 @@ export default function EarningsDashboard() {
   };
 
   const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.card}>
-      <View style={styles.cardIcon}>
+    <View style={[styles.card, { backgroundColor: colors.card, shadowColor: actualTheme === 'dark' ? '#000' : '#000' }]}>
+      <View style={[styles.cardIcon, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F3F4F6' }]}>
         <Ionicons
           name={item.type === "COMMISSION" ? "trending-up" : "ticket-outline"}
           size={24}
-          color={Colors.light.tint}
+          color={colors.tint}
         />
       </View>
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item.title}</Text>
-        <Text style={styles.cardDate}>
+        <Text style={[styles.cardTitle, { color: colors.text }]}>{item.title}</Text>
+        <Text style={[styles.cardDate, { color: colors.secondary }]}>
           {new Date(item.date).toLocaleDateString()}
         </Text>
-        <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+        <Text style={[styles.cardSubtitle, { color: colors.secondary }]}>{item.subtitle}</Text>
       </View>
       <View style={styles.cardAmount}>
         <Text style={styles.amountText}>+{item.amount} NPR</Text>
@@ -136,8 +136,8 @@ export default function EarningsDashboard() {
 
   if (loading && !refreshing) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
   }
@@ -149,7 +149,7 @@ export default function EarningsDashboard() {
   const renderHeader = () => (
     <View>
       {/* Header with Balance */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.tint }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
@@ -171,7 +171,7 @@ export default function EarningsDashboard() {
       {/* Payouts Section */}
       {payouts.length > 0 && (
         <View>
-          <Text style={styles.sectionTitle}>Payout Requests</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Payout Requests</Text>
           <FlatList
             data={payouts}
             horizontal
@@ -180,8 +180,8 @@ export default function EarningsDashboard() {
             contentContainerStyle={{ paddingHorizontal: 20 }}
             keyExtractor={(item: any) => item.id}
             renderItem={({ item }) => (
-              <View style={styles.payoutCard}>
-                <Text style={styles.payoutAmount}>NPR {item.amount}</Text>
+              <View style={[styles.payoutCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.payoutAmount, { color: colors.text }]}>NPR {item.amount}</Text>
                 <Text
                   style={[
                     styles.payoutStatus,
@@ -192,7 +192,7 @@ export default function EarningsDashboard() {
                 >
                   {item.status}
                 </Text>
-                <Text style={styles.payoutDate}>
+                <Text style={[styles.payoutDate, { color: colors.secondary }]}>
                   {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
               </View>
@@ -201,12 +201,12 @@ export default function EarningsDashboard() {
         </View>
       )}
 
-      <Text style={styles.sectionTitle}>Recent Transactions</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</Text>
     </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <FlatList
         data={transactions}
         renderItem={renderItem}
@@ -217,13 +217,13 @@ export default function EarningsDashboard() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.light.tint]}
+            colors={[colors.tint]}
           />
         }
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Ionicons name="receipt-outline" size={48} color="#ccc" />
-            <Text style={styles.emptyText}>No transactions yet</Text>
+            <Ionicons name="receipt-outline" size={48} color={colors.secondary} />
+            <Text style={[styles.emptyText, { color: colors.secondary }]}>No transactions yet</Text>
           </View>
         }
       />
@@ -231,18 +231,20 @@ export default function EarningsDashboard() {
       {/* Withdrawal Modal */}
       {withdrawModalVisible && (
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Withdraw Funds</Text>
+          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Withdraw Funds</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text, borderColor: colors.border }]}
               placeholder="Enter Amount (NPR)"
+              placeholderTextColor={colors.secondary}
               keyboardType="numeric"
               value={withdrawAmount}
               onChangeText={setWithdrawAmount}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: colors.text, borderColor: colors.border }]}
               placeholder="Khalti/Wallet Number"
+              placeholderTextColor={colors.secondary}
               keyboardType="phone-pad"
               value={khaltiNumber}
               onChangeText={setKhaltiNumber}
@@ -252,11 +254,11 @@ export default function EarningsDashboard() {
                 onPress={() => setWithdrawModalVisible(false)}
                 style={styles.cancelBtn}
               >
-                <Text>Cancel</Text>
+                <Text style={{ color: colors.secondary }}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleWithdraw}
-                style={styles.confirmBtn}
+                style={[styles.confirmBtn, { backgroundColor: colors.tint }]}
               >
                 <Text style={{ color: "#fff" }}>Confirm</Text>
               </TouchableOpacity>

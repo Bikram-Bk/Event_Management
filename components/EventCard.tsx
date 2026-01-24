@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Colors, Layout } from "../constants/Colors";
+import { useTheme } from "../context/ThemeContext";
 import { useFavorites } from "../hooks/use-favorites";
 
 interface EventCardProps {
@@ -32,6 +33,8 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const { toggleFavorite, isFavorite } = useFavorites();
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -53,7 +56,7 @@ export default function EventCard({ event }: EventCardProps) {
 
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.card, shadowColor: actualTheme === 'dark' ? '#000' : '#000' }]}
       onPress={handlePress}
       activeOpacity={0.9}
     >
@@ -82,15 +85,15 @@ export default function EventCard({ event }: EventCardProps) {
 
       {/* Top Badges */}
       <View style={styles.topBadges}>
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>
+        <View style={[styles.categoryBadge, { backgroundColor: actualTheme === 'dark' ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)' }]}>
+          <Text style={[styles.categoryText, { color: colors.text }]}>
             {event.category?.name || "Event"}
           </Text>
         </View>
         <View
           style={[
             styles.priceBadge,
-            (Number(event.price) || 0) > 0 && styles.paidBadge,
+            (Number(event.price) || 0) > 0 && [styles.paidBadge, { backgroundColor: colors.tint }],
           ]}
         >
           <Text style={styles.priceText}>
@@ -103,7 +106,7 @@ export default function EventCard({ event }: EventCardProps) {
 
       {/* Content Overlay */}
       <View style={styles.content}>
-        <Text style={styles.date}>
+        <Text style={[styles.date, { color: colors.tint }]}>
           {formatDate(event.startDate).toUpperCase()}
         </Text>
         <Text style={styles.title} numberOfLines={2}>
@@ -112,12 +115,12 @@ export default function EventCard({ event }: EventCardProps) {
 
         <View style={styles.footerRow}>
           <View style={styles.locationRow}>
-            <Ionicons name="location-outline" size={14} color="#CCCCCC" />
-            <Text style={styles.infoText}>{event.city || "Virtual"}</Text>
+            <Ionicons name="location-outline" size={14} color={colors.secondary} />
+            <Text style={[styles.infoText, { color: '#E2E8F0' }]}>{event.city || "Virtual"}</Text>
           </View>{event.organizer && (
             <View style={styles.organizerRow}>
-              <Ionicons name="person-outline" size={14} color="#CCCCCC" />
-              <Text style={styles.infoText} numberOfLines={1}>
+              <Ionicons name="person-outline" size={14} color={colors.secondary} />
+              <Text style={[styles.infoText, { color: '#E2E8F0' }]} numberOfLines={1}>
                 {event.organizer.username}
               </Text>
             </View>
@@ -130,7 +133,7 @@ export default function EventCard({ event }: EventCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.light.background,
+    backgroundColor: '#fff', // This will be overridden internally if needed, but let's use dynamic style in the component
     borderRadius: Layout.borderRadius.xl,
     marginBottom: Layout.spacing.lg,
     overflow: "hidden",
@@ -185,7 +188,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.2)",
   },
   paidBadge: {
-    backgroundColor: Colors.light.tint, // Gold/Bronze
+    backgroundColor: '#C5A572', // This will be dynamic below
     borderWidth: 0,
   },
   priceText: {

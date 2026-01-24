@@ -1,5 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import Constants from "expo-constants";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -16,14 +18,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Constants from "expo-constants";
 import { Colors } from "../constants/Colors";
+import { useTheme } from "../context/ThemeContext";
 import { useCategories } from "../hooks/use-categories";
 import { useRequestEvent } from "../hooks/use-events";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function CreateEventScreen() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const createEventMutation = useRequestEvent();
   const [isUploading, setIsUploading] = useState(false);
@@ -226,8 +229,8 @@ export default function CreateEventScreen() {
 
   if (categoriesLoading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
   }
@@ -241,24 +244,24 @@ export default function CreateEventScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.background }]}>
         <TouchableOpacity
           onPress={() => router.back()}
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: colors.card }]}
         >
-          <Ionicons name="chevron-back" size={24} color={Colors.light.text} />
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Request Event</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Request Event</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Basic Information</Text>
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Basic Information</Text>
 
           <TouchableOpacity
-            style={styles.imagePicker}
+            style={[styles.imagePicker, { backgroundColor: actualTheme === 'dark' ? colors.background : '#F3F4F6', borderColor: colors.border }]}
             onPress={pickImage}
             disabled={isUploading}
           >
@@ -268,13 +271,13 @@ export default function CreateEventScreen() {
                 style={styles.coverImage}
               />
             ) : (
-              <View style={styles.imagePlaceholder}>
+              <View style={[styles.imagePlaceholder, { backgroundColor: actualTheme === 'dark' ? colors.background : '#F3F4F6' }]}>
                 {isUploading ? (
-                  <ActivityIndicator color={Colors.light.tint} />
+                  <ActivityIndicator color={colors.tint} />
                 ) : (
                   <>
-                    <Ionicons name="image-outline" size={40} color="#9CA3AF" />
-                    <Text style={styles.imagePlaceholderText}>
+                    <Ionicons name="image-outline" size={40} color={colors.secondary} />
+                    <Text style={[styles.imagePlaceholderText, { color: colors.secondary }]}>
                       Add Cover Image
                     </Text>
                   </>
@@ -288,22 +291,24 @@ export default function CreateEventScreen() {
             )}
           </TouchableOpacity>
 
-          <Text style={styles.label}>Event Title *</Text>
+          <Text style={[styles.label, { color: colors.secondary }]}>Event Title *</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
             placeholder="Enter event title"
+            placeholderTextColor={colors.secondary}
             value={formData.title}
             onChangeText={(text) => setFormData({ ...formData, title: text })}
           />
 
-          <Text style={styles.label}>Category *</Text>
+          <Text style={[styles.label, { color: colors.secondary }]}>Category *</Text>
           <View style={styles.categoryContainer}>
             {categories?.map((cat: any) => (
               <TouchableOpacity
                 key={cat.id}
                 style={[
                   styles.categoryChip,
-                  formData.categoryId === cat.id && styles.categoryChipActive,
+                  { backgroundColor: actualTheme === 'dark' ? colors.background : '#F3F4F6', borderColor: colors.border },
+                  formData.categoryId === cat.id && { backgroundColor: colors.tint, borderColor: colors.tint },
                 ]}
                 onPress={() => setFormData({ ...formData, categoryId: cat.id })}
               >
@@ -311,6 +316,7 @@ export default function CreateEventScreen() {
                 <Text
                   style={[
                     styles.categoryName,
+                    { color: colors.secondary },
                     formData.categoryId === cat.id && styles.categoryNameActive,
                   ]}
                 >
@@ -320,10 +326,11 @@ export default function CreateEventScreen() {
             ))}
           </View>
 
-          <Text style={styles.label}>Description *</Text>
+          <Text style={[styles.label, { color: colors.secondary }]}>Description *</Text>
           <TextInput
-            style={[styles.input, styles.textArea]}
+            style={[styles.input, styles.textArea, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
             placeholder="Describe your event"
+            placeholderTextColor={colors.secondary}
             multiline
             numberOfLines={4}
             value={formData.description}
@@ -333,18 +340,18 @@ export default function CreateEventScreen() {
           />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Gallery Images</Text>
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Gallery Images</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.galleryContainer}
           >
             <TouchableOpacity
-              style={styles.addGalleryButton}
+              style={[styles.addGalleryButton, { borderColor: colors.border, backgroundColor: colors.background }]}
               onPress={pickGalleryImages}
             >
-              <Ionicons name="add" size={32} color="#9CA3AF" />
+              <Ionicons name="add" size={32} color={colors.secondary} />
             </TouchableOpacity>
             {formData.images.map((uri, index) => (
               <View key={index} style={styles.galleryImageContainer}>
@@ -363,7 +370,7 @@ export default function CreateEventScreen() {
                   <Ionicons
                     name="close-circle"
                     size={20}
-                    color={Colors.light.tint}
+                    color={colors.tint}
                   />
                 </TouchableOpacity>
               </View>
@@ -371,28 +378,28 @@ export default function CreateEventScreen() {
           </ScrollView>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Date & Time</Text>
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Date & Time</Text>
 
           <View style={styles.dateTimeRow}>
             <View style={{ flex: 1, marginRight: 10 }}>
-              <Text style={styles.label}>Start Date *</Text>
+              <Text style={[styles.label, { color: colors.secondary }]}>Start Date *</Text>
               <TouchableOpacity
-                style={styles.datePickerButton}
+                style={[styles.datePickerButton, { backgroundColor: colors.background, borderColor: colors.border }]}
                 onPress={() => showPicker("start", "date")}
               >
-                <Text style={styles.dateText}>
+                <Text style={[styles.dateText, { color: colors.text }]}>
                   {formData.startDate.toLocaleDateString()}
                 </Text>
               </TouchableOpacity>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Start Time *</Text>
+              <Text style={[styles.label, { color: colors.secondary }]}>Start Time *</Text>
               <TouchableOpacity
-                style={styles.datePickerButton}
+                style={[styles.datePickerButton, { backgroundColor: colors.background, borderColor: colors.border }]}
                 onPress={() => showPicker("start", "time")}
               >
-                <Text style={styles.dateText}>
+                <Text style={[styles.dateText, { color: colors.text }]}>
                   {formData.startDate.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -405,23 +412,23 @@ export default function CreateEventScreen() {
 
           <View style={styles.dateTimeRow}>
             <View style={{ flex: 1, marginRight: 10 }}>
-              <Text style={styles.label}>End Date *</Text>
+              <Text style={[styles.label, { color: colors.secondary }]}>End Date *</Text>
               <TouchableOpacity
-                style={styles.datePickerButton}
+                style={[styles.datePickerButton, { backgroundColor: colors.background, borderColor: colors.border }]}
                 onPress={() => showPicker("end", "date")}
               >
-                <Text style={styles.dateText}>
+                <Text style={[styles.dateText, { color: colors.text }]}>
                   {formData.endDate.toLocaleDateString()}
                 </Text>
               </TouchableOpacity>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.label}>End Time *</Text>
+              <Text style={[styles.label, { color: colors.secondary }]}>End Time *</Text>
               <TouchableOpacity
-                style={styles.datePickerButton}
+                style={[styles.datePickerButton, { backgroundColor: colors.background, borderColor: colors.border }]}
                 onPress={() => showPicker("end", "time")}
               >
-                <Text style={styles.dateText}>
+                <Text style={[styles.dateText, { color: colors.text }]}>
                   {formData.endDate.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -447,34 +454,38 @@ export default function CreateEventScreen() {
           )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Location</Text>
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Location</Text>
 
           <View style={styles.switchRow}>
-            <Text style={styles.label}>Virtual Event</Text>
+            <Text style={[styles.label, { color: colors.secondary }]}>Virtual Event</Text>
             <Switch
               value={formData.isVirtual}
               onValueChange={(val) =>
                 setFormData({ ...formData, isVirtual: val })
               }
+              trackColor={{ false: colors.border, true: colors.tint }}
+              thumbColor={Platform.OS === 'ios' ? undefined : colors.card}
             />
           </View>
 
           {!formData.isVirtual && (
             <>
-              <Text style={styles.label}>Venue Name</Text>
+              <Text style={[styles.label, { color: colors.secondary }]}>Venue Name</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
                 placeholder="Enter venue name"
+                placeholderTextColor={colors.secondary}
                 value={formData.venueName}
                 onChangeText={(text) =>
                   setFormData({ ...formData, venueName: text })
                 }
               />
-              <Text style={styles.label}>City *</Text>
+              <Text style={[styles.label, { color: colors.secondary }]}>City *</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
                 placeholder="Enter city"
+                placeholderTextColor={colors.secondary}
                 value={formData.city}
                 onChangeText={(text) =>
                   setFormData({ ...formData, city: text })
@@ -484,24 +495,27 @@ export default function CreateEventScreen() {
           )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Pricing & Capacity</Text>
+        <View style={[styles.section, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Pricing & Capacity</Text>
 
           <View style={styles.switchRow}>
-            <Text style={styles.label}>Free Event</Text>
+            <Text style={[styles.label, { color: colors.secondary }]}>Free Event</Text>
             <Switch
               value={formData.isFree}
               onValueChange={(val) => setFormData({ ...formData, isFree: val })}
+              trackColor={{ false: colors.border, true: colors.tint }}
+              thumbColor={Platform.OS === 'ios' ? undefined : colors.card}
             />
           </View>
 
           {!formData.isFree && (
             <View style={styles.row}>
               <View style={{ flex: 1, marginRight: 10 }}>
-                <Text style={styles.label}>Price</Text>
+                <Text style={[styles.label, { color: colors.secondary }]}>Price</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
                   placeholder="0.00"
+                  placeholderTextColor={colors.secondary}
                   keyboardType="numeric"
                   value={formData.price}
                   onChangeText={(text) =>
@@ -510,9 +524,9 @@ export default function CreateEventScreen() {
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.label}>Currency</Text>
+                <Text style={[styles.label, { color: colors.secondary }]}>Currency</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F3F4F6', color: colors.text, borderColor: colors.border }]}
                   value={formData.currency}
                   editable={false}
                 />
@@ -520,10 +534,11 @@ export default function CreateEventScreen() {
             </View>
           )}
 
-          <Text style={styles.label}>Capacity (optional)</Text>
+          <Text style={[styles.label, { color: colors.secondary }]}>Capacity (optional)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
             placeholder="Unlimited"
+            placeholderTextColor={colors.secondary}
             keyboardType="numeric"
             value={formData.capacity}
             onChangeText={(text) =>
@@ -535,6 +550,7 @@ export default function CreateEventScreen() {
         <TouchableOpacity
           style={[
             styles.submitButton,
+            { backgroundColor: colors.tint },
             (createEventMutation.isPending || isUploading) &&
               styles.submitButtonDisabled,
           ]}

@@ -3,17 +3,18 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 import { useUserEvents } from "../../hooks/use-attendees";
 
 const API_URL =
@@ -21,6 +22,8 @@ const API_URL =
 
 export default function MyEventsScreen() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const { data: events, isLoading, refetch } = useUserEvents();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -34,8 +37,8 @@ export default function MyEventsScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     ); 
   }
@@ -43,12 +46,12 @@ export default function MyEventsScreen() {
   const registeredEvents = events || [];
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={actualTheme === 'dark' ? "light-content" : "dark-content"} />
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Bookings</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>My Bookings</Text>
       </View>
 
       <ScrollView
@@ -58,7 +61,7 @@ export default function MyEventsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.light.tint]}
+            colors={[colors.tint]}
           />
         }>
         {registeredEvents.length > 0 ? (
@@ -67,7 +70,7 @@ export default function MyEventsScreen() {
             return (
               <TouchableOpacity
                 key={registration.id}
-                style={styles.eventCard}
+                style={[styles.eventCard, { backgroundColor: colors.card, shadowColor: actualTheme === 'dark' ? '#000' : '#000' }]}
                 onPress={() => router.push(`/event/${event.id}`)}>
                 <Image
                   source={{
@@ -82,7 +85,7 @@ export default function MyEventsScreen() {
 
                 <View style={styles.eventInfo}>
                   <View style={styles.eventHeader}>
-                    <Text style={styles.eventTitle} numberOfLines={2}>
+                    <Text style={[styles.eventTitle, { color: colors.text }]} numberOfLines={2}>
                       {event.title}
                     </Text>
                     <View
@@ -102,10 +105,10 @@ export default function MyEventsScreen() {
                     <Ionicons
                       name="calendar-outline"
                       size={14}
-                      color="#666"
+                      color={colors.secondary}
                       style={{ marginRight: 4 }}
                     />
-                    <Text style={styles.eventDate}>
+                    <Text style={[styles.eventDate, { color: colors.secondary }]}>
                       {new Date(event.startDate).toLocaleDateString()} at{" "}
                       {new Date(event.startDate).toLocaleTimeString([], {
                         hour: "2-digit",
@@ -118,19 +121,19 @@ export default function MyEventsScreen() {
                     <Ionicons
                       name="location-outline"
                       size={14}
-                      color="#666"
+                      color={colors.secondary}
                       style={{ marginRight: 4 }}
                     />
-                    <Text style={styles.eventLocation}>
+                    <Text style={[styles.eventLocation, { color: colors.secondary }]}>
                       {event.location || "Online"}
                     </Text>
                   </View>
 
-                  <View style={styles.footer}>
-                    <Text style={styles.ticketType}>
+                  <View style={[styles.footer, { borderTopColor: colors.border }]}>
+                    <Text style={[styles.ticketType, { color: colors.tint }]}>
                       {registration.ticketType || "General Admission"}
                     </Text>
-                    <Ionicons name="chevron-forward" size={16} color="#999" />
+                    <Ionicons name="chevron-forward" size={16} color={colors.secondary} />
                   </View>
                 </View>
               </TouchableOpacity>
@@ -138,10 +141,10 @@ export default function MyEventsScreen() {
           })
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="calendar-clear-outline" size={64} color="#ccc" />
-            <Text style={styles.emptyText}>No registered events yet</Text>
+            <Ionicons name="calendar-clear-outline" size={64} color={colors.secondary} />
+            <Text style={[styles.emptyText, { color: colors.secondary }]}>No registered events yet</Text>
             <TouchableOpacity
-              style={styles.browseButton}
+              style={[styles.browseButton, { backgroundColor: colors.tint }]}
               onPress={() => router.push("/(tabs)")}>
               <Text style={styles.browseButtonText}>Browse Events</Text>
             </TouchableOpacity>

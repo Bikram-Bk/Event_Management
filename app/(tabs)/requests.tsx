@@ -1,22 +1,26 @@
 import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import Constants from "expo-constants";
 import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 import { useMyRequests } from "../../hooks/use-events";
 
 export default function RequestsTab() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const { data: myRequests, isLoading, refetch } = useMyRequests();
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<"pending" | "published">(
@@ -31,8 +35,8 @@ export default function RequestsTab() {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
   }
@@ -88,15 +92,16 @@ export default function RequestsTab() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={actualTheme === "dark" ? "light-content" : "dark-content"} />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Created Events</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>My Created Events</Text>
       </View>
 
       {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
-          style={[styles.tab, activeTab === "published" && styles.activeTab]}
+          style={[styles.tab, { backgroundColor: colors.border }, activeTab === "published" && { backgroundColor: colors.tint }]}
           onPress={() => setActiveTab("published")}
         >
           <Text
@@ -109,7 +114,7 @@ export default function RequestsTab() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === "pending" && styles.activeTab]}
+          style={[styles.tab, { backgroundColor: colors.border }, activeTab === "pending" && { backgroundColor: colors.tint }]}
           onPress={() => setActiveTab("pending")}
         >
           <Text
@@ -129,7 +134,7 @@ export default function RequestsTab() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.light.tint]}
+            colors={[colors.tint]}
           />
         }
       >
@@ -137,7 +142,7 @@ export default function RequestsTab() {
           requests.map((request: any) => (
             <TouchableOpacity
               key={request.id}
-              style={styles.card}
+              style={[styles.card, { backgroundColor: colors.card, shadowColor: actualTheme === "dark" ? "#000" : "#000" }]}
               onPress={() => {
                 router.push(`/planner/${request.id}`);
               }}
@@ -152,7 +157,7 @@ export default function RequestsTab() {
               />
               <View style={styles.cardContent}>
                 <View style={styles.cardHeader}>
-                  <Text style={styles.cardTitle} numberOfLines={1}>
+                  <Text style={[styles.cardTitle, { color: colors.text }]} numberOfLines={1}>
                     {request.title}
                   </Text>
                   <View
@@ -172,7 +177,7 @@ export default function RequestsTab() {
                   </View>
                 </View>
 
-                <Text style={styles.cardDate}>
+                <Text style={[styles.cardDate, { color: colors.secondary }]}>
                   {new Date(request.startDate).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
@@ -182,20 +187,20 @@ export default function RequestsTab() {
                   })}
                 </Text>
 
-                <Text style={styles.cardDescription} numberOfLines={1}>
+                <Text style={[styles.cardDescription, { color: colors.secondary }]} numberOfLines={1}>
                   {request.description}
                 </Text>
 
                 <View style={styles.cardFooter}>
                   <View style={styles.statsRow}>
                     <View style={styles.statItem}>
-                      <Ionicons name="people" size={14} color="#666" />
-                      <Text style={styles.statText}>
+                      <Ionicons name="people" size={14} color={colors.secondary} />
+                      <Text style={[styles.statText, { color: colors.secondary }]}>
                         {request._count?.attendees || 0} Joined
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.priceText}>
+                  <Text style={[styles.priceText, { color: colors.tint }]}>
                     {request.isFree
                       ? "Free"
                       : `${request.currency || "NPR"} ${request.price}`}
@@ -206,17 +211,17 @@ export default function RequestsTab() {
           ))
         ) : (
           <View style={styles.emptyContainer}>
-            <Ionicons name="calendar-outline" size={64} color="#ccc" />
-            <Text style={styles.emptyTitle}>
+            <Ionicons name="calendar-outline" size={64} color={colors.secondary} />
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
               No {activeTab === "published" ? "Published" : "Pending"} Events
             </Text>
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, { color: colors.secondary }]}>
               {activeTab === "pending"
                 ? "You don't have any pending requests."
                 : "You don't have any published events."}
             </Text>
             <TouchableOpacity
-              style={styles.createButton}
+              style={[styles.createButton, { backgroundColor: colors.tint, shadowColor: colors.tint }]}
               onPress={() => router.push("/create-event")}
             >
               <Text style={styles.createButtonText}>Request Event</Text>

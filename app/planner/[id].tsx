@@ -1,38 +1,41 @@
+import { Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 import { useEvent, useEventAttendees } from "../../hooks/use-events";
-import Constants from "expo-constants";
 
 const AttendeeList = ({ eventId }: { eventId: string }) => {
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const { data: attendees, isLoading, error } = useEventAttendees(eventId);
 
   if (isLoading) {
-    return <ActivityIndicator size="small" color={Colors.light.tint} />;
+    return <ActivityIndicator size="small" color={colors.tint} />;
   }
 
   if (error) {
-    return <Text style={styles.errorText}>Failed to load attendees</Text>;
+    return <Text style={[styles.errorText, { color: colors.secondary }]}>Failed to load attendees</Text>;
   }
 
   if (!attendees || attendees.length === 0) {
-    return <Text style={styles.emptyText}>No attendees yet.</Text>;
+    return <Text style={[styles.emptyText, { color: colors.secondary }]}>No attendees yet.</Text>;
   }
 
   return (
     <View style={styles.attendeeList}>
       {attendees.map((attendee: any) => (
-        <View key={attendee.id} style={styles.attendeeItem}>
+        <View key={attendee.id} style={[styles.attendeeItem, { backgroundColor: actualTheme === 'dark' ? colors.card : '#F9FAFB' }]}>
           <Image
             source={{
               uri:
@@ -43,12 +46,12 @@ const AttendeeList = ({ eventId }: { eventId: string }) => {
             style={styles.attendeeAvatar}
           />
           <View style={styles.attendeeInfo}>
-            <Text style={styles.attendeeName}>
+            <Text style={[styles.attendeeName, { color: colors.text }]}>
               {attendee.user?.username || "Guest"}
             </Text>
-            <Text style={styles.attendeeEmail}>{attendee.user?.email}</Text>
+            <Text style={[styles.attendeeEmail, { color: colors.secondary }]}>{attendee.user?.email}</Text>
           </View>
-          <Text style={styles.attendeeStatus}>{attendee.status}</Text>
+          <Text style={[styles.attendeeStatus, { color: colors.tint }]}>{attendee.status}</Text>
         </View>
       ))}
     </View>
@@ -58,22 +61,24 @@ const AttendeeList = ({ eventId }: { eventId: string }) => {
 export default function PlannerDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const { data: event, isLoading, error } = useEvent(id as string);
 
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
   }
 
   if (error || !event) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Text style={styles.errorText}>Failed to load event details</Text>
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.secondary }]}>Failed to load event details</Text>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: colors.tint }]}
           onPress={() => router.back()}
         >
           <Text style={styles.backButtonText}>Go Back</Text>
@@ -91,6 +96,7 @@ export default function PlannerDetails() {
   };
 
   const getStatusColor = (status: string) => {
+    if (actualTheme === 'dark') return colors.card;
     switch (status) {
       case "PUBLISHED":
         return "#E6F4EA";
@@ -106,6 +112,7 @@ export default function PlannerDetails() {
   };
 
   const getStatusTextColor = (status: string) => {
+    if (actualTheme === 'dark') return colors.text;
     switch (status) {
       case "PUBLISHED":
         return "#1E4620";
@@ -121,7 +128,7 @@ export default function PlannerDetails() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.imageContainer}>
           <Image
@@ -156,34 +163,34 @@ export default function PlannerDetails() {
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.title}>{event.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{event.title}</Text>
 
-          <View style={styles.statsgrid}>
+          <View style={[styles.statsgrid, { backgroundColor: actualTheme === 'dark' ? colors.card : '#F9FAFB' }]}>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>
+              <Text style={[styles.statValue, { color: colors.tint }]}>
                 {event._count?.attendees || 0}
               </Text>
-              <Text style={styles.statLabel}>Attendees</Text>
+              <Text style={[styles.statLabel, { color: colors.secondary }]}>Attendees</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{event.viewCount || 0}</Text>
-              <Text style={styles.statLabel}>Views</Text>
+              <Text style={[styles.statValue, { color: colors.tint }]}>{event.viewCount || 0}</Text>
+              <Text style={[styles.statLabel, { color: colors.secondary }]}>Views</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>
+              <Text style={[styles.statValue, { color: colors.tint }]}>
                 {event.isFree
                   ? "Free"
                   : `${event.currency || "NPR"} ${event.price}`}
               </Text>
-              <Text style={styles.statLabel}>Price</Text>
+              <Text style={[styles.statLabel, { color: colors.secondary }]}>Price</Text>
             </View>
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Event Details</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Event Details</Text>
             <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>
+              <Ionicons name="calendar-outline" size={20} color={colors.secondary} />
+              <Text style={[styles.infoText, { color: colors.text }]}>
                 {new Date(event.startDate).toLocaleDateString(undefined, {
                   weekday: "long",
                   year: "numeric",
@@ -193,8 +200,8 @@ export default function PlannerDetails() {
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="time-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>
+              <Ionicons name="time-outline" size={20} color={colors.secondary} />
+              <Text style={[styles.infoText, { color: colors.text }]}>
                 {new Date(event.startDate).toLocaleTimeString(undefined, {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -202,8 +209,8 @@ export default function PlannerDetails() {
               </Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={20} color="#666" />
-              <Text style={styles.infoText}>
+              <Ionicons name="location-outline" size={20} color={colors.secondary} />
+              <Text style={[styles.infoText, { color: colors.text }]}>
                 {event.isVirtual
                   ? "Virtual Event"
                   : `${event.location}, ${event.city}`}
@@ -212,12 +219,12 @@ export default function PlannerDetails() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Description</Text>
-            <Text style={styles.description}>{event.description}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Description</Text>
+            <Text style={[styles.description, { color: colors.secondary }]}>{event.description}</Text>
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Attendees</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Attendees</Text>
             <AttendeeList eventId={event.id} />
           </View>
 
@@ -235,19 +242,19 @@ export default function PlannerDetails() {
       </ScrollView>
 
       {/* Footer Actions */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         {event.status === "DRAFT" ? (
           <TouchableOpacity
-            style={styles.editButton}
+            style={[styles.editButton, { backgroundColor: colors.border }]}
             onPress={() =>
               Alert.alert("Coming Soon", "Edit functionality coming soon")
             }
           >
-            <Text style={styles.editButtonText}>Edit Request</Text>
+            <Text style={[styles.editButtonText, { color: colors.text }]}>Edit Request</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={[styles.editButton, { backgroundColor: Colors.light.tint }]}
+            style={[styles.editButton, { backgroundColor: colors.tint }]}
             onPress={() => {}}
           >
             <Text style={styles.editButtonText}>Manage Attendees</Text>

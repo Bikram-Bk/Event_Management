@@ -1,47 +1,50 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import EventCard from "../../components/EventCard";
 import { Colors } from "../../constants/Colors";
+import { useTheme } from "../../context/ThemeContext";
 import { useFavorites } from "../../hooks/use-favorites";
 
 export default function FavouritesScreen() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const { favorites, loading } = useFavorites();
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border, borderBottomWidth: 1 }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F8F9FA' }]}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Favourites</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>My Favourites</Text>
         <View style={{ width: 44 }} />
       </View>
       {favorites.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="heart-dislike-outline" size={80} color="#ccc" />
-          <Text style={styles.emptyText}>No favourites yet</Text>
+          <Ionicons name="heart-dislike-outline" size={80} color={colors.secondary} />
+          <Text style={[styles.emptyText, { color: colors.secondary }]}>No favourites yet</Text>
           <TouchableOpacity
-            style={styles.exploreButton}
+            style={[styles.exploreButton, { backgroundColor: colors.tint }]}
             onPress={() => router.push("/")}
           >
             <Text style={styles.exploreText}>Explore Events</Text>

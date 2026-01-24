@@ -1,9 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Colors } from "../../../constants/Colors";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function ContactUs() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   const handleContact = (type: "email" | "whatsapp" | "phone") => {
     switch (type) {
@@ -20,16 +24,16 @@ export default function ContactUs() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F8F9FA' }]}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Contact Us</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Contact Us</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -37,52 +41,52 @@ export default function ContactUs() {
         contentContainerStyle={styles.content} 
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionTitle}>Get in Touch</Text>
-        <Text style={styles.description}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Get in Touch</Text>
+        <Text style={[styles.description, { color: colors.secondary }]}>
           Have any questions or need assistance? Reach out to us through any of the following channels.
         </Text>
 
         <View style={styles.contactSection}>
           <TouchableOpacity
-            style={styles.contactItem}
+            style={[styles.contactItem, { backgroundColor: colors.card }]}
             onPress={() => handleContact("phone")}
           >
             <View style={[styles.iconCircle, { backgroundColor: "#FFF3E0" }]}>
               <Ionicons name="call" size={26} color="#F57C00" />
             </View>
             <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>Call Us</Text>
-              <Text style={styles.contactValue}>+977 9749315184</Text>
+              <Text style={[styles.contactLabel, { color: colors.secondary }]}>Call Us</Text>
+              <Text style={[styles.contactValue, { color: colors.text }]}>+977 9749315184</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#ccc" />
+            <Ionicons name="chevron-forward" size={18} color={colors.secondary} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.contactItem}
+            style={[styles.contactItem, { backgroundColor: colors.card }]}
             onPress={() => handleContact("email")}
           >
             <View style={[styles.iconCircle, { backgroundColor: "#E3F2FD" }]}>
               <Ionicons name="mail" size={26} color="#2196F3" />
             </View>
             <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>Email Us</Text>
-              <Text style={styles.contactValue}>bikrambk2244@gmail.com</Text>
+              <Text style={[styles.contactLabel, { color: colors.secondary }]}>Email Us</Text>
+              <Text style={[styles.contactValue, { color: colors.text }]}>bikrambk2244@gmail.com</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#ccc" />
+            <Ionicons name="chevron-forward" size={18} color={colors.secondary} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.contactItem}
+            style={[styles.contactItem, { backgroundColor: colors.card }]}
             onPress={() => handleContact("whatsapp")}
           >
             <View style={[styles.iconCircle, { backgroundColor: "#E8F5E9" }]}>
               <Ionicons name="logo-whatsapp" size={28} color="#4CAF50" />
             </View>
             <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>WhatsApp</Text>
-              <Text style={styles.contactValue}>Message us anytime</Text>
+              <Text style={[styles.contactLabel, { color: colors.secondary }]}>WhatsApp</Text>
+              <Text style={[styles.contactValue, { color: colors.text }]}>Message us anytime</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#ccc" />
+            <Ionicons name="chevron-forward" size={18} color={colors.secondary} />
           </TouchableOpacity>
         </View>
       </ScrollView>

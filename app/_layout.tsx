@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { FavoritesProvider } from "../context/FavoritesContext";
+import { ThemeProvider } from "../context/ThemeContext";
 
 const queryClient = new QueryClient();
 
@@ -51,11 +52,13 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <FavoritesProvider>
-          <RootLayoutNav />
-        </FavoritesProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <FavoritesProvider>
+            <RootLayoutNav />
+          </FavoritesProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

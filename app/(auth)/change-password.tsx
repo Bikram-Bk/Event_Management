@@ -3,12 +3,16 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../constants/Colors';
+import { useTheme } from '../../context/ThemeContext';
 import { useChangePassword } from '../../hooks/use-change-password';
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ token: string }>();
   const changePasswordMutation = useChangePassword();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -54,55 +58,55 @@ export default function ChangePasswordScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#000" />
+            <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }]}>
+              <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
 
           <View style={styles.content}>
-            <Text style={styles.title}>Reset Password</Text>
-            <Text style={styles.subtitle}>Enter your new password below.</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Reset Password</Text>
+            <Text style={[styles.subtitle, { color: colors.secondary }]}>Enter your new password below.</Text>
 
             <View style={styles.form}>
-              <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }]}>
+                <Ionicons name="lock-closed-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
                 <TextInput 
-                  style={styles.input} 
+                  style={[styles.input, { color: colors.text }]} 
                   placeholder="New Password" 
-                  placeholderTextColor="#999"
+                  placeholderTextColor={colors.secondary}
                   secureTextEntry={!showPassword}
                   value={password}
                   onChangeText={setPassword}
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#666" />
+                  <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.secondary} />
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
+              <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }]}>
+                <Ionicons name="lock-closed-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
                 <TextInput 
-                  style={styles.input} 
+                  style={[styles.input, { color: colors.text }]} 
                   placeholder="Confirm Password" 
-                  placeholderTextColor="#999"
+                  placeholderTextColor={colors.secondary}
                   secureTextEntry={!showConfirmPassword}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                 />
                 <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#666" />
+                  <Ionicons name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.secondary} />
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity 
-                style={[styles.button, changePasswordMutation.isPending && styles.buttonDisabled]} 
+                style={[styles.button, { backgroundColor: colors.tint, shadowColor: colors.tint }, changePasswordMutation.isPending && styles.buttonDisabled]} 
                 onPress={handleChangePassword}
                 disabled={changePasswordMutation.isPending}
               >

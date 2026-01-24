@@ -1,9 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Colors } from "../../../constants/Colors";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function FAQs() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   const faqs = [
     {
@@ -29,16 +33,16 @@ export default function FAQs() {
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F8F9FA' }]}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>FAQs</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>FAQs</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -46,14 +50,14 @@ export default function FAQs() {
         contentContainerStyle={styles.content} 
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Frequently Asked Questions</Text>
         {faqs.map((faq, index) => (
-          <View key={index} style={styles.faqCard}>
+          <View key={index} style={[styles.faqCard, { backgroundColor: colors.card }]}>
             <View style={styles.questionRow}>
-              <Ionicons name="help-circle" size={20} color="#2196F3" />
-              <Text style={styles.faqQuestion}>{faq.q}</Text>
+              <Ionicons name="help-circle" size={20} color={colors.tint} />
+              <Text style={[styles.faqQuestion, { color: colors.text }]}>{faq.q}</Text>
             </View>
-            <Text style={styles.faqAnswer}>{faq.a}</Text>
+            <Text style={[styles.faqAnswer, { color: colors.secondary }]}>{faq.a}</Text>
           </View>
         ))}
       </ScrollView>

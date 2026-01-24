@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../constants/Colors';
+import { useTheme } from '../../context/ThemeContext';
 
 import { forgotPassword } from '../../hooks/use-forgot-password';
 
@@ -10,6 +12,8 @@ export default function ForgotPasswordScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   const showToast = (message: string) => {
     if (Platform.OS === 'android') {
@@ -42,24 +46,24 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Forgot Password?</Text>
-        <Text style={styles.subtitle}>Don't worry! It happens. Please enter the email associated with your account.</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Forgot Password?</Text>
+        <Text style={[styles.subtitle, { color: colors.secondary }]}>Don't worry! It happens. Please enter the email associated with your account.</Text>
 
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
+          <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }]}>
+            <Ionicons name="mail-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
             <TextInput 
-              style={styles.input} 
+              style={[styles.input, { color: colors.text }]} 
               placeholder="Email" 
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.secondary}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
@@ -68,7 +72,7 @@ export default function ForgotPasswordScreen() {
           </View>
 
           <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            style={[styles.button, { backgroundColor: colors.tint, shadowColor: colors.tint }, isLoading && styles.buttonDisabled]} 
             onPress={handleResetPassword}
             disabled={isLoading}
           >

@@ -7,21 +7,25 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import { Colors } from "../../../constants/Colors";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function AboutUsScreen() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F8F9FA' }]}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>About Us</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>About Us</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -30,46 +34,46 @@ export default function AboutUsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.heroSection}>
-          <View style={styles.logoCircle}>
+          <View style={[styles.logoCircle, { backgroundColor: actualTheme === 'dark' ? colors.card : "#673AB715" }]}>
             <Ionicons name="people" size={50} color="#673AB7" />
           </View>
-          <Text style={styles.title}>Our Story</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Our Story</Text>
+          <Text style={[styles.subtitle, { color: colors.secondary }]}>
             Evently originated as an academic project and evolved into a unified platform for efficient event management.
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Our Mission</Text>
-          <Text style={styles.cardText}>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Mission</Text>
+          <Text style={[styles.cardText, { color: colors.secondary }]}>
             Our mission is to simplify event planning and discovery, making it
             easier for people to connect and create lasting memories. We believe
             that every event, big or small, deserves to be special.
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Our Vision</Text>
-          <Text style={styles.cardText}>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Our Vision</Text>
+          <Text style={[styles.cardText, { color: colors.secondary }]}>
             To become the world's most trusted and innovative platform for event
             management, fostering a global community of organizers and
             attendees.
           </Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>What Makes Us Different</Text>
+        <View style={[styles.card, { backgroundColor: colors.card }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>What Makes Us Different</Text>
           <View style={styles.featureRow}>
             <Ionicons name="checkmark-circle" size={20} color="#673AB7" />
-            <Text style={styles.featureText}>User-friendly interface</Text>
+            <Text style={[styles.featureText, { color: colors.text }]}>User-friendly interface</Text>
           </View>
           <View style={styles.featureRow}>
             <Ionicons name="checkmark-circle" size={20} color="#673AB7" />
-            <Text style={styles.featureText}>Secure and reliable booking</Text>
+            <Text style={[styles.featureText, { color: colors.text }]}>Secure and reliable booking</Text>
           </View>
           <View style={styles.featureRow}>
             <Ionicons name="checkmark-circle" size={20} color="#673AB7" />
-            <Text style={styles.featureText}>Dedicated 24/7 support</Text>
+            <Text style={[styles.featureText, { color: colors.text }]}>Dedicated 24/7 support</Text>
           </View>
         </View>
 

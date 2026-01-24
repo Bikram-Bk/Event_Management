@@ -1,21 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Colors } from "../../../constants/Colors";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function AppInfo() {
   const router = useRouter();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.border : '#F8F9FA' }]}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>App Info</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>App Info</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -24,27 +28,27 @@ export default function AppInfo() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.logoContainer}>
-          <View style={styles.logoCircle}>
-            <Ionicons name="calendar" size={60} color="#2196F3" />
+          <View style={[styles.logoCircle, { backgroundColor: colors.card }]}>
+            <Ionicons name="calendar" size={60} color={colors.tint} />
           </View>
-          <Text style={styles.appName}>Evently</Text>
-          <Text style={styles.version}>Version 1.0.0</Text>
+          <Text style={[styles.appName, { color: colors.text }]}>Evently</Text>
+          <Text style={[styles.version, { color: colors.secondary }]}>Version 1.0.0</Text>
         </View>
 
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Developer</Text>
-            <Text style={styles.infoValue}>Evently Team</Text>
+            <Text style={[styles.infoLabel, { color: colors.secondary }]}>Developer</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>Evently Team</Text>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Release Date</Text>
-            <Text style={styles.infoValue}>Jan 2026</Text>
+            <Text style={[styles.infoLabel, { color: colors.secondary }]}>Release Date</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>Jan 2026</Text>
           </View>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Website</Text>
-            <Text style={styles.infoValue}>www.evently.com</Text>
+            <Text style={[styles.infoLabel, { color: colors.secondary }]}>Website</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>www.evently.com</Text>
           </View>
         </View>
 

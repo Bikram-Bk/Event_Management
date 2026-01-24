@@ -1,16 +1,17 @@
-import { useRef } from "react";
-import {
-  Animated,
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import { useRef } from "react";
+import {
+    Animated,
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { Colors, Layout } from "../constants/Colors";
+import { useTheme } from "../context/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = width * 0.85;
@@ -21,6 +22,8 @@ interface FeaturedCarouselProps {
 }
 
 export default function FeaturedCarousel({ events }: FeaturedCarouselProps) {
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const scrollX = useRef(new Animated.Value(0)).current;
 
   if (!events || events.length === 0) return null;
@@ -47,7 +50,7 @@ export default function FeaturedCarousel({ events }: FeaturedCarouselProps) {
         onPress={() => router.push(`/event/${item.id}`)}
       >
         <Animated.View
-          style={[styles.itemContainer, { transform: [{ scale }] }]}
+          style={[styles.itemContainer, { transform: [{ scale }], backgroundColor: colors.card }]}
         >
           <Image
             source={{ uri: imageUrl }}
@@ -61,7 +64,7 @@ export default function FeaturedCarousel({ events }: FeaturedCarouselProps) {
           />
 
           <View style={styles.content}>
-            <View style={styles.badge}>
+            <View style={[styles.badge, { backgroundColor: colors.tint }]}>
               <Text style={styles.badgeText}>FEATURED</Text>
             </View>
             <Text style={styles.title} numberOfLines={2}>
@@ -113,7 +116,7 @@ const styles = StyleSheet.create({
     height: 400,
     borderRadius: Layout.borderRadius.xl,
     overflow: "hidden",
-    backgroundColor: Colors.light.background,
+    backgroundColor: '#fff',
     marginHorizontal: SPACING / 2,
     ...Layout.shadows.large,
     shadowOpacity: 0.25, // Stronger shadow for featured

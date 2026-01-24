@@ -3,11 +3,15 @@ import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../constants/Colors';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function SignInScreen() {
   const router = useRouter();
   const { signIn, isLoading } = useAuth();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -38,24 +42,24 @@ export default function SignInScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Let's Sign You In</Text>
-        <Text style={styles.subtitle}>Welcome back, you've been missed!</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Let's Sign You In</Text>
+        <Text style={[styles.subtitle, { color: colors.secondary }]}>Welcome back, you've been missed!</Text>
 
         <View style={styles.form}>
-          <View style={[styles.inputContainer, errors.email && styles.inputError]}>
-            <Ionicons name="mail-outline" size={20} color={errors.email ? "#FF3B30" : "#666"} style={styles.inputIcon} />
+          <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }, errors.email && styles.inputError]}>
+            <Ionicons name="mail-outline" size={20} color={errors.email ? "#FF3B30" : colors.secondary} style={styles.inputIcon} />
             <TextInput 
-              style={styles.input} 
+              style={[styles.input, { color: colors.text }]} 
               placeholder="Email" 
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.secondary}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
@@ -67,12 +71,12 @@ export default function SignInScreen() {
           </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          <View style={[styles.inputContainer, errors.password && styles.inputError]}>
-            <Ionicons name="lock-closed-outline" size={20} color={errors.password ? "#FF3B30" : "#666"} style={styles.inputIcon} />
+          <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }, errors.password && styles.inputError]}>
+            <Ionicons name="lock-closed-outline" size={20} color={errors.password ? "#FF3B30" : colors.secondary} style={styles.inputIcon} />
             <TextInput 
-              style={styles.input} 
+              style={[styles.input, { color: colors.text }]} 
               placeholder="Password" 
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.secondary}
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={(text) => {
@@ -81,19 +85,19 @@ export default function SignInScreen() {
               }}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#666" />
+              <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.secondary} />
             </TouchableOpacity>
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
           <Link href="/(auth)/forgot-password" asChild>
             <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              <Text style={[styles.forgotPasswordText, { color: colors.tint }]}>Forgot Password?</Text>
             </TouchableOpacity>
           </Link>
 
           <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
+            style={[styles.button, { backgroundColor: colors.tint, shadowColor: colors.tint }, isLoading && styles.buttonDisabled]} 
             onPress={handleSignIn}
             disabled={isLoading}
           >
@@ -104,10 +108,10 @@ export default function SignInScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text style={[styles.footerText, { color: colors.secondary }]}>Don't have an account? </Text>
           <Link href="/(auth)/sign-up" asChild>
             <TouchableOpacity>
-              <Text style={styles.footerLink}>Sign Up</Text>
+              <Text style={[styles.footerLink, { color: colors.tint }]}>Sign Up</Text>
             </TouchableOpacity>
           </Link>
         </View>

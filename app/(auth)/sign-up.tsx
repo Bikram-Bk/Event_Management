@@ -3,11 +3,15 @@ import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../constants/Colors';
+import { useTheme } from '../../context/ThemeContext';
 import { useRegister } from '../../hooks/use-register';
 
 export default function SignUpScreen() {
   const router = useRouter();
   const registerMutation = useRegister();
+  const { actualTheme } = useTheme();
+  const colors = Colors[actualTheme];
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -64,24 +68,24 @@ export default function SignUpScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000" />
+        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }]}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Start your journey with us today!</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+        <Text style={[styles.subtitle, { color: colors.secondary }]}>Start your journey with us today!</Text>
 
         <View style={styles.form}>
-          <View style={[styles.inputContainer, errors.name && styles.inputError]}>
-            <Ionicons name="person-outline" size={20} color={errors.name ? "#FF3B30" : "#666"} style={styles.inputIcon} />
+          <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }, errors.name && styles.inputError]}>
+            <Ionicons name="person-outline" size={20} color={errors.name ? "#FF3B30" : colors.secondary} style={styles.inputIcon} />
             <TextInput 
-              style={styles.input} 
+              style={[styles.input, { color: colors.text }]} 
               placeholder="Full Name" 
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.secondary}
               value={name}
               onChangeText={(text) => {
                 setName(text);
@@ -91,12 +95,12 @@ export default function SignUpScreen() {
           </View>
           {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
 
-          <View style={[styles.inputContainer, errors.email && styles.inputError]}>
-            <Ionicons name="mail-outline" size={20} color={errors.email ? "#FF3B30" : "#666"} style={styles.inputIcon} />
+          <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }, errors.email && styles.inputError]}>
+            <Ionicons name="mail-outline" size={20} color={errors.email ? "#FF3B30" : colors.secondary} style={styles.inputIcon} />
             <TextInput 
-              style={styles.input} 
+              style={[styles.input, { color: colors.text }]} 
               placeholder="Email" 
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.secondary}
               autoCapitalize="none"
               keyboardType="email-address"
               value={email}
@@ -108,12 +112,12 @@ export default function SignUpScreen() {
           </View>
           {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
 
-          <View style={[styles.inputContainer, errors.password && styles.inputError]}>
-            <Ionicons name="lock-closed-outline" size={20} color={errors.password ? "#FF3B30" : "#666"} style={styles.inputIcon} />
+          <View style={[styles.inputContainer, { backgroundColor: actualTheme === 'dark' ? colors.card : '#f5f5f5' }, errors.password && styles.inputError]}>
+            <Ionicons name="lock-closed-outline" size={20} color={errors.password ? "#FF3B30" : colors.secondary} style={styles.inputIcon} />
             <TextInput 
-              style={styles.input} 
+              style={[styles.input, { color: colors.text }]} 
               placeholder="Password" 
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.secondary}
               secureTextEntry={!showPassword}
               value={password}
               onChangeText={(text) => {
@@ -122,13 +126,13 @@ export default function SignUpScreen() {
               }}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-              <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color="#666" />
+              <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} size={20} color={colors.secondary} />
             </TouchableOpacity>
           </View>
           {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
           <TouchableOpacity 
-            style={[styles.button, registerMutation.isPending && styles.buttonDisabled]} 
+            style={[styles.button, { backgroundColor: colors.tint, shadowColor: colors.tint }, registerMutation.isPending && styles.buttonDisabled]} 
             onPress={handleSignUp}
             disabled={registerMutation.isPending}
           >
@@ -139,10 +143,10 @@ export default function SignUpScreen() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
+          <Text style={[styles.footerText, { color: colors.secondary }]}>Already have an account? </Text>
           <Link href="/(auth)/sign-in" asChild>
             <TouchableOpacity>
-              <Text style={styles.footerLink}>Login</Text>
+              <Text style={[styles.footerLink, { color: colors.tint }]}>Login</Text>
             </TouchableOpacity>
           </Link>
         </View>
