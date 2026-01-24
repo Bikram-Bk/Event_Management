@@ -1,29 +1,29 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-  Animated,
-  StatusBar,
-  Linking,
-  Platform,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
-import {
-  useCheckRegistration,
-  useRegisterEvent,
-} from "../../hooks/use-attendees";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef } from "react";
-import Constants from "expo-constants";
+import {
+    ActivityIndicator,
+    Alert,
+    Animated,
+    Dimensions,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
 import { Colors, Layout } from "../../constants/Colors";
+import {
+    useCheckRegistration,
+    useRegisterEvent,
+} from "../../hooks/use-attendees";
+import { useFavorites } from "../../hooks/use-favorites";
 
 const { width, height } = Dimensions.get("window");
 const IMG_HEIGHT = 400;
@@ -32,6 +32,7 @@ export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
+  const { toggleFavorite, isFavorite } = useFavorites();
   const API_URL =
     Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
 
@@ -169,8 +170,16 @@ export default function EventDetails() {
           <Ionicons name="arrow-back" size={24} color="#FFF" />
         </TouchableOpacity>
         <View style={styles.rightActions}>
-          <TouchableOpacity style={styles.circleButton} activeOpacity={0.8}>
-            <Ionicons name="heart-outline" size={24} color="#FFF" />
+          <TouchableOpacity 
+            style={styles.circleButton} 
+            activeOpacity={0.8}
+            onPress={() => toggleFavorite(event)}
+          >
+            <Ionicons 
+              name={isFavorite(event.id) ? "heart" : "heart-outline"} 
+              size={24} 
+              color={isFavorite(event.id) ? "#FF3B30" : "#FFF"} 
+            />
           </TouchableOpacity>
           <TouchableOpacity style={styles.circleButton} activeOpacity={0.8}>
             <Ionicons name="share-outline" size={24} color="#FFF" />

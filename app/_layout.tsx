@@ -1,12 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  Stack,
-  useRootNavigationState,
-  useRouter,
-  useSegments,
+    Stack,
+    useRootNavigationState,
+    useRouter,
+    useSegments,
 } from "expo-router";
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "../context/AuthContext";
+import { FavoritesProvider } from "../context/FavoritesContext";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +52,9 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RootLayoutNav />
+        <FavoritesProvider>
+          <RootLayoutNav />
+        </FavoritesProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -14,7 +15,6 @@ import { Colors } from "../../constants/Colors";
 import { useAuth } from "../../context/AuthContext";
 import { useUserEvents } from "../../hooks/use-attendees";
 import { useGetUser } from "../../hooks/use-get-user";
-import { useState, useCallback } from "react";
 
 export default function ProfileTab() {
   const router = useRouter();
@@ -124,13 +124,19 @@ export default function ProfileTab() {
           <Ionicons name="chevron-forward" size={18} color="#ccc" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
-          <Ionicons name="card-outline" size={22} color="#333" />
-          <Text style={styles.menuText}>Payment Methods</Text>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => router.push("/favourites/favourite")}
+        >
+          <Ionicons name="heart-outline" size={22} color="#333" />
+          <Text style={styles.menuText}>Favourites</Text>
           <Ionicons name="chevron-forward" size={18} color="#ccc" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => router.push("/helpsupport/help")}
+        >
           <Ionicons name="help-circle-outline" size={22} color="#333" />
           <Text style={styles.menuText}>Help & Support</Text>
           <Ionicons name="chevron-forward" size={18} color="#ccc" />

@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Colors, Layout } from "../constants/Colors";
+import { useFavorites } from "../hooks/use-favorites";
 
 interface EventCardProps {
   event: {
@@ -31,6 +32,7 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
+  const { toggleFavorite, isFavorite } = useFavorites();
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -66,6 +68,16 @@ export default function EventCard({ event }: EventCardProps) {
           colors={["transparent", "rgba(0,0,0,0.8)"]}
           style={styles.gradient}
         />
+        <TouchableOpacity 
+          style={styles.favoriteButton} 
+          onPress={() => toggleFavorite(event)}
+        >
+          <Ionicons 
+            name={isFavorite(event.id) ? "heart" : "heart-outline"} 
+            size={22} 
+            color={isFavorite(event.id) ? "#FF3B30" : "#FFF"} 
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Top Badges */}
@@ -102,8 +114,7 @@ export default function EventCard({ event }: EventCardProps) {
           <View style={styles.locationRow}>
             <Ionicons name="location-outline" size={14} color="#CCCCCC" />
             <Text style={styles.infoText}>{event.city || "Virtual"}</Text>
-          </View>
-          {event.organizer && (
+          </View>{event.organizer && (
             <View style={styles.organizerRow}>
               <Ionicons name="person-outline" size={14} color="#CCCCCC" />
               <Text style={styles.infoText} numberOfLines={1}>
@@ -227,5 +238,19 @@ const styles = StyleSheet.create({
     color: "#E2E8F0",
     fontSize: 12,
     fontWeight: "500",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: Layout.spacing.md,
+    right: Layout.spacing.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
 });

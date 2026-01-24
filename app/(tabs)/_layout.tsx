@@ -167,6 +167,12 @@ export default function TabLayout() {
             tabBarLabel: () => null,
           }}
         />
+        <Tabs.Screen
+          name="helpsupport/index"
+          options={{
+            href: null,
+          }}
+        />
       </Tabs>
       <StatusBar barStyle="dark-content" />
     </View>
