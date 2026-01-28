@@ -6,17 +6,17 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
@@ -354,7 +354,14 @@ export default function CreateEventScreen() {
                 ]}
                 onPress={() => setFormData({ ...formData, categoryId: cat.id })}
               >
-                <Text style={styles.categoryIcon}>{cat.icon}</Text>
+                {cat.icon && (cat.icon.startsWith('http') || cat.icon.startsWith('/')) ? (
+                  <Image 
+                    source={{ uri: getFullImageUrl(cat.icon) as string }} 
+                    style={[styles.categoryIconImage, { tintColor: formData.categoryId === cat.id ? '#fff' : undefined }]}
+                  />
+                ) : (
+                  <Text style={[styles.categoryIcon, { color: formData.categoryId === cat.id ? '#fff' : colors.text }]}>{cat.icon || "✨"}</Text>
+                )}
                 <Text
                   style={[
                     styles.categoryName,
@@ -702,6 +709,11 @@ const styles = StyleSheet.create({
   },
   categoryIcon: {
     fontSize: 14,
+  },
+  categoryIconImage: {
+    width: 16,
+    height: 16,
+    borderRadius: 4,
   },
   categoryName: {
     fontSize: 12,

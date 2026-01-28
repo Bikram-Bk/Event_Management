@@ -3,17 +3,17 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Image,
+    Modal,
+    RefreshControl,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import EventCard from "../../components/EventCard";
 import FeaturedCarousel from "../../components/FeaturedCarousel";
@@ -227,7 +227,14 @@ export default function DiscoverScreen() {
                     ]}
                     onPress={() => handleCategoryPress(category.id)}
                   >
-                    <Text style={[styles.categoryIcon, { color: selectedCategory === category.id ? '#fff' : colors.text }]}>{category.icon}</Text>
+                    {category.icon && (category.icon.startsWith('http') || category.icon.startsWith('/')) ? (
+                      <Image 
+                        source={{ uri: category.icon.startsWith('/') ? `${Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL}${category.icon}` : category.icon }} 
+                        style={[styles.categoryIconImage, { tintColor: selectedCategory === category.id ? '#fff' : undefined }]}
+                      />
+                    ) : (
+                      <Text style={[styles.categoryIcon, { color: selectedCategory === category.id ? '#fff' : colors.text }]}>{category.icon || "✨"}</Text>
+                    )}
                     <Text
                       style={[
                         styles.categoryName,
@@ -556,6 +563,11 @@ const styles = StyleSheet.create({
   },
   categoryIcon: {
     fontSize: 16,
+  },
+  categoryIconImage: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
   },
   categoryName: {
     fontSize: 13,
