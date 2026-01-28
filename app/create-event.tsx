@@ -6,17 +6,17 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
@@ -52,6 +52,13 @@ export default function CreateEventScreen() {
     capacity: "",
     coverImage: "",
     images: [] as string[],
+    brideName: "",
+    groomName: "",
+    babyName: "",
+    babyGender: "",
+    babyDob: new Date(),
+    muhurtaTime: "",
+    boyName: "",
   });
 
   useEffect(() => {
@@ -73,6 +80,13 @@ export default function CreateEventScreen() {
         capacity: existingEvent.capacity?.toString() || "",
         coverImage: existingEvent.coverImage || "",
         images: existingEvent.images || [],
+        brideName: existingEvent.brideName || "",
+        groomName: existingEvent.groomName || "",
+        babyName: existingEvent.babyName || "",
+        babyGender: existingEvent.babyGender || "",
+        babyDob: existingEvent.babyDob ? new Date(existingEvent.babyDob) : new Date(),
+        muhurtaTime: existingEvent.muhurtaTime || "",
+        boyName: existingEvent.boyName || "",
       });
     }
   }, [existingEvent]);
@@ -387,6 +401,132 @@ export default function CreateEventScreen() {
               setFormData({ ...formData, description: text })
             }
           />
+
+          {categories?.find((c: any) => c.id === formData.categoryId)?.name === "Wedding" && (
+            <>
+              <Text style={[styles.label, { color: colors.secondary }]}>Bride's Name *</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="Enter bride's name"
+                placeholderTextColor={colors.secondary}
+                value={formData.brideName}
+                onChangeText={(text) => setFormData({ ...formData, brideName: text })}
+              />
+
+              <Text style={[styles.label, { color: colors.secondary }]}>Groom's Name *</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="Enter groom's name"
+                placeholderTextColor={colors.secondary}
+                value={formData.groomName}
+                onChangeText={(text) => setFormData({ ...formData, groomName: text })}
+              />
+            </>
+          )}
+
+          {categories?.find((c: any) => c.id === formData.categoryId)?.name === "Pasni" && (
+            <>
+              <Text style={[styles.label, { color: colors.secondary }]}>Baby's Name *</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="Enter baby's name"
+                placeholderTextColor={colors.secondary}
+                value={formData.babyName}
+                onChangeText={(text) => setFormData({ ...formData, babyName: text })}
+              />
+
+              <Text style={[styles.label, { color: colors.secondary }]}>Gender *</Text>
+              <View style={styles.categoryContainer}>
+                {['Boy', 'Girl'].map((gender) => (
+                  <TouchableOpacity
+                    key={gender}
+                    style={[
+                      styles.categoryChip,
+                      { backgroundColor: actualTheme === 'dark' ? colors.background : '#F3F4F6', borderColor: colors.border },
+                      formData.babyGender === gender && { backgroundColor: colors.tint, borderColor: colors.tint },
+                    ]}
+                    onPress={() => setFormData({ ...formData, babyGender: gender })}
+                  >
+                    <Text style={[styles.categoryName, { color: colors.secondary }, formData.babyGender === gender && styles.categoryNameActive]}>
+                      {gender}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={[styles.label, { color: colors.secondary }]}>Auspicious Time (Muhurta)</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="e.g. 10:30 AM"
+                placeholderTextColor={colors.secondary}
+                value={formData.muhurtaTime}
+                onChangeText={(text) => setFormData({ ...formData, muhurtaTime: text })}
+              />
+            </>
+          )}
+
+          {categories?.find((c: any) => c.id === formData.categoryId)?.name === "Nwaran" && (
+            <>
+              <Text style={[styles.label, { color: colors.secondary }]}>Baby's Name *</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="Enter baby's name"
+                placeholderTextColor={colors.secondary}
+                value={formData.babyName}
+                onChangeText={(text) => setFormData({ ...formData, babyName: text })}
+              />
+
+              <Text style={[styles.label, { color: colors.secondary }]}>Gender *</Text>
+              <View style={styles.categoryContainer}>
+                {['Boy', 'Girl'].map((gender) => (
+                  <TouchableOpacity
+                    key={gender}
+                    style={[
+                      styles.categoryChip,
+                      { backgroundColor: actualTheme === 'dark' ? colors.background : '#F3F4F6', borderColor: colors.border },
+                      formData.babyGender === gender && { backgroundColor: colors.tint, borderColor: colors.tint },
+                    ]}
+                    onPress={() => setFormData({ ...formData, babyGender: gender })}
+                  >
+                    <Text style={[styles.categoryName, { color: colors.secondary }, formData.babyGender === gender && styles.categoryNameActive]}>
+                      {gender}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={[styles.label, { color: colors.secondary }]}>Auspicious Time (Muhurta)</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="e.g. 10:30 AM"
+                placeholderTextColor={colors.secondary}
+                value={formData.muhurtaTime}
+                onChangeText={(text) => setFormData({ ...formData, muhurtaTime: text })}
+              />
+            </>
+          )}
+
+          {categories?.find((c: any) => c.id === formData.categoryId)?.name === "Bartaband" && (
+            <>
+              <Text style={[styles.label, { color: colors.secondary }]}>Boy's Name *</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="Enter boy's name"
+                placeholderTextColor={colors.secondary}
+                value={formData.boyName}
+                onChangeText={(text) => setFormData({ ...formData, boyName: text })}
+              />
+
+              <Text style={[styles.label, { color: colors.secondary }]}>Auspicious Time (Muhurta)</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
+                placeholder="e.g. 09:00 AM"
+                placeholderTextColor={colors.secondary}
+                value={formData.muhurtaTime}
+                onChangeText={(text) => setFormData({ ...formData, muhurtaTime: text })}
+              />
+            </>
+          )}
         </View>
 
         <View style={[styles.section, { backgroundColor: colors.card }]}>

@@ -6,7 +6,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Colors, Layout } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
 import { useFavorites } from "../hooks/use-favorites";
-
+import BartabandCard from "./BartabandCard";
+import NwaranCard from "./NwaranCard";
+import PasniCard from "./PasniCard";
+import WeddingCard from "./WeddingCard";
+ 
 interface EventCardProps {
   event: {
     id: string;
@@ -26,9 +30,9 @@ interface EventCardProps {
       username: string;
       avatar?: string;
     };
-    _count?: {
-      attendees: number;
-    };
+    capacity: number;
+    brideName?: string;
+    groomName?: string;
   };
 }
 
@@ -53,6 +57,27 @@ export default function EventCard({ event }: EventCardProps) {
   const imageUrl = event.coverImage?.startsWith("http")
     ? event.coverImage
     : `${process.env.EXPO_PUBLIC_API_URL}${event.coverImage}`;
+
+  const isWedding = event.category?.name === "Wedding";
+  const isPasni = event.category?.name === "Pasni";
+  const isBartaband = event.category?.name === "Bartaband";
+  const isNwaran = event.category?.name === "Nwaran";
+
+  if (isWedding) {
+    return <WeddingCard event={event} />;
+  }
+
+  if (isPasni) {
+    return <PasniCard event={event} />;
+  }
+
+  if (isBartaband) {
+    return <BartabandCard event={event as any} />;
+  }
+
+  if (isNwaran) {
+    return <NwaranCard event={event as any} />;
+  }
 
   return (
     <TouchableOpacity
@@ -117,7 +142,9 @@ export default function EventCard({ event }: EventCardProps) {
           <View style={styles.locationRow}>
             <Ionicons name="location-outline" size={14} color={colors.secondary} />
             <Text style={[styles.infoText, { color: '#E2E8F0' }]}>{event.city || "Virtual"}</Text>
-          </View>{event.organizer && (
+          </View>
+          
+          {event.organizer && (
             <View style={styles.organizerRow}>
               <Ionicons name="person-outline" size={14} color={colors.secondary} />
               <Text style={[styles.infoText, { color: '#E2E8F0' }]} numberOfLines={1}>
@@ -133,7 +160,7 @@ export default function EventCard({ event }: EventCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff', // This will be overridden internally if needed, but let's use dynamic style in the component
+    backgroundColor: '#fff',
     borderRadius: Layout.borderRadius.xl,
     marginBottom: Layout.spacing.lg,
     overflow: "hidden",
@@ -154,7 +181,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: "100%", // Full gradient for better text visibility
+    height: "100%",
     zIndex: 1,
   },
   topBadges: {
@@ -167,11 +194,10 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   categoryBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)", // Frosted glass feel
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     paddingHorizontal: Layout.spacing.md,
     paddingVertical: Layout.spacing.xs + 2,
     borderRadius: 20,
-    // backdropFilter: 'blur(10px)', // Note: backdropFilter not supported on RN mobile natively without extra libs, relying on opacity
   },
   categoryText: {
     fontSize: 12,
@@ -188,7 +214,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(255,255,255,0.2)",
   },
   paidBadge: {
-    backgroundColor: '#C5A572', // This will be dynamic below
+    backgroundColor: '#C5A572',
     borderWidth: 0,
   },
   priceText: {

@@ -36,27 +36,35 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    justifyContent: "center",
+    paddingTop: Platform.OS === 'ios' ? 44 : (Constants.statusBarHeight || 0),
+    height: Platform.OS === 'ios' ? 90 : (Constants.statusBarHeight || 0) + 56,
     borderBottomWidth: 1,
+    paddingHorizontal: 16,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: "700",
+    textAlign: "center",
   },
   backButton: {
+    position: "absolute",
+    left: 8,
+    bottom: 8,
     padding: 8,
-    marginLeft: -8,
+    zIndex: 10,
+  },
+  headerRightPlaceholder: {
+    width: 40,
   },
   content: {
     padding: 20,
-    paddingBottom: 100,
+    paddingBottom: 80,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    marginTop: 24,
+    marginTop: 10,
     marginBottom: 12,
   },
   card: {
@@ -288,8 +296,7 @@ export default function CheckoutScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Checkout</Text>
-        <View style={{ width: 40 }} />
+        <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>Checkout</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
