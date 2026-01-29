@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Platform, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import { useTheme } from '../../context/ThemeContext';
+import { useToast } from '../../context/ToastContext';
 
 import { forgotPassword } from '../../hooks/use-forgot-password';
 
@@ -14,18 +15,11 @@ export default function ForgotPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { actualTheme } = useTheme();
   const colors = Colors[actualTheme];
-
-  const showToast = (message: string) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(message, ToastAndroid.SHORT);
-    } else {
-      Alert.alert('Notice', message);
-    }
-  };
+  const { showToast: toast } = useToast();
 
   const handleResetPassword = async () => {
     if (!email) {
-      showToast('Please enter your email address');
+      toast({ message: 'Please enter your email address', type: 'warning' });
       return;
     }
 
@@ -33,13 +27,16 @@ export default function ForgotPasswordScreen() {
 
     try {
       const response = await forgotPassword(email);
-      showToast(response.message || 'Password reset link sent to your email');
+      toast({ 
+        message: response.message || 'Password reset link sent to your email', 
+        type: response.success ? 'success' : 'error' 
+      });
       if (response.success) {
         router.back();
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
-      showToast(errorMessage);
+      toast({ message: errorMessage, type: 'error' });
     } finally {
       setIsLoading(false);
     }

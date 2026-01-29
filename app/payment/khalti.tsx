@@ -1,17 +1,15 @@
-import {
-  StyleSheet,
-  View,
-  ActivityIndicator,
-  Alert,
-  TouchableOpacity,
-  Text,
-} from "react-native";
-import { WebView } from "react-native-webview";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useRef, useEffect, useState } from "react";
-import { Colors } from "../../constants/Colors";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Constants from "expo-constants";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+    ActivityIndicator,
+    StyleSheet,
+    View
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { WebView } from "react-native-webview";
+import { Colors } from "../../constants/Colors";
+import { useToast } from "../../context/ToastContext";
 
 const API_URL =
   Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
@@ -20,6 +18,7 @@ export default function KhaltiPaymentScreen() {
   const { url, attendeeId } = useLocalSearchParams();
   const router = useRouter();
   const [polling, setPolling] = useState(true);
+  const { showToast } = useToast();
 
   // Poll for payment status in case deep link fails
   useEffect(() => {
@@ -44,7 +43,7 @@ export default function KhaltiPaymentScreen() {
   }, [attendeeId, polling]);
 
   if (!url || typeof url !== "string") {
-    Alert.alert("Error", "Invalid payment URL");
+    showToast({ message: "Invalid payment URL", type: "error" });
     router.back();
     return null;
   }

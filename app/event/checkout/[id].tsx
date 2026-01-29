@@ -6,19 +6,19 @@ import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { Colors } from "../../../constants/Colors";
 import { useTheme } from "../../../context/ThemeContext";
+import { useToast } from "../../../context/ToastContext";
 import { useRegisterEvent } from "../../../hooks/use-attendees";
 
 const { width } = Dimensions.get("window");
@@ -201,6 +201,7 @@ export default function CheckoutScreen() {
   const colors = Colors[actualTheme];
   const [paymentMethod, setPaymentMethod] = useState("KHALTI");
   const [quantity, setQuantity] = useState(1);
+  const { showToast } = useToast();
   const API_URL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
 
   const {
@@ -250,11 +251,16 @@ export default function CheckoutScreen() {
         return;
       }
       await registerMutation.mutateAsync({ eventId: id as string });
-      Alert.alert("Order Confirmed! 🎉", "You have successfully registered. Please pay cash upon arrival.", [
-        { text: "OK", onPress: () => { router.dismissAll(); router.replace("/(tabs)"); } },
-      ]);
+      showToast({ message: "Order Confirmed! 🎉 Please pay cash upon arrival.", type: "success" });
+      setTimeout(() => {
+        router.dismissAll();
+        router.replace("/(tabs)");
+      }, 2000);
     } catch (error) {
-      Alert.alert("Payment Failed", error instanceof Error ? error.message : "Please try again later");
+      showToast({ 
+        message: error instanceof Error ? error.message : "Please try again later", 
+        type: "error" 
+      });
     }
   };
 

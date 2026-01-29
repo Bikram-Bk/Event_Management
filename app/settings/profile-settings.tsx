@@ -4,21 +4,22 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
+import { ConfirmModal } from "../../components/ConfirmModal";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
+import { useToast } from "../../context/ToastContext";
 import { useDeleteAccount } from "../../hooks/use-delete-account";
 import { useGetUser } from "../../hooks/use-get-user";
 import { useSettingsChangePassword } from "../../hooks/use-settings-change-password";
@@ -31,6 +32,7 @@ export default function ProfileSettingsScreen() {
   const updateProfile = useUpdateProfile();
   const changePassword = useSettingsChangePassword();
   const deleteAccount = useDeleteAccount();
+  const { showToast } = useToast();
 
   const [isUploading, setIsUploading] = useState(false);
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
@@ -50,6 +52,7 @@ export default function ProfileSettingsScreen() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const user = userData?.data;
   const colors = Colors[actualTheme];
@@ -57,7 +60,7 @@ export default function ProfileSettingsScreen() {
   const handlePickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission", "Permission to access gallery is required.");
+      showToast({ message: "Permission to access gallery is required.", type: "warning" });
       return;
     }
 
@@ -78,9 +81,9 @@ export default function ProfileSettingsScreen() {
     setIsUploading(true);
     try {
       await updateProfile.mutateAsync({ avatar: uri });
-      Alert.alert("Success", "Profile photo updated successfully!");
+      showToast({ message: "Profile photo updated successfully!", type: "success" });
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to update profile photo");
+      showToast({ message: error.message || "Failed to update profile photo", type: "error" });
     } finally {
       setIsUploading(false);
     }
@@ -100,85 +103,73 @@ export default function ProfileSettingsScreen() {
     if (activeField === "username") {
       const nameRegex = /^[a-zA-Z\s]+$/;
       if (!value) {
-        Alert.alert("Error", "Full name is required");
+        showToast({ message: "Full name is required", type: "error" });
         return;
       } else if (!nameRegex.test(value)) {
-        Alert.alert("Error", "Name should only contain letters");
+        showToast({ message: "Name should only contain letters", type: "error" });
         return;
       }
     } else if (activeField === "email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!value) {
-        Alert.alert("Error", "Email is required");
+        showToast({ message: "Email is required", type: "error" });
         return;
       } else if (!emailRegex.test(value)) {
-        Alert.alert("Error", "Please enter a valid email address");
+        showToast({ message: "Please enter a valid email address", type: "error" });
         return;
       }
     } else if (activeField === "phone") {
       const phoneRegex = /^\d{10}$/;
       if (value && !phoneRegex.test(value)) {
-        Alert.alert("Error", "Phone number must be exactly 10 digits");
+        showToast({ message: "Phone number must be exactly 10 digits", type: "error" });
         return;
       }
     }
     
     try {
       await updateProfile.mutateAsync({ [activeField]: value });
-      Alert.alert("Success", `${activeField.charAt(0).toUpperCase() + activeField.slice(1)} updated successfully!`);
+      showToast({ message: `${activeField.charAt(0).toUpperCase() + activeField.slice(1)} updated successfully!`, type: "success" });
       setIsInputModalVisible(false);
     } catch (error: any) {
-      Alert.alert("Error", error.message || `Failed to update ${activeField}`);
+      showToast({ message: error.message || `Failed to update ${activeField}`, type: "error" });
     }
   };
 
   const handlePasswordChange = async () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert("Error", "Please fill all fields");
+      showToast({ message: "Please fill all fields", type: "error" });
       return;
     }
     if (newPassword !== confirmPassword) {
-      Alert.alert("Error", "New passwords do not match");
+      showToast({ message: "New passwords do not match", type: "error" });
       return;
     }
     if (newPassword.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
+      showToast({ message: "Password must be at least 6 characters", type: "error" });
       return;
     }
 
     try {
       await changePassword.mutateAsync({ currentPassword, newPassword });
-      Alert.alert("Success", "Password changed successfully!");
+      showToast({ message: "Password changed successfully!", type: "success" });
       setIsPasswordModalVisible(false);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to change password");
+      showToast({ message: error.message || "Failed to change password", type: "error" });
     }
   };
 
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      "Delete Account",
-      "Are you sure you want to delete your account? This action is permanent and cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteAccount.mutateAsync();
-              Alert.alert("Success", "Account deleted successfully.");
-              router.replace("/(auth)/welcome");
-            } catch (error: any) {
-              Alert.alert("Error", error.message || "Failed to delete account");
-            }
-          },
-        },
-      ]
-    );
+  const handleDeleteAccount = async () => {
+    setIsDeleteModalVisible(false);
+    try {
+      await deleteAccount.mutateAsync();
+      showToast({ message: "Account deleted successfully.", type: "success" });
+      router.replace("/(auth)/welcome");
+    } catch (error: any) {
+      showToast({ message: error.message || "Failed to delete account", type: "error" });
+    }
   };
  
   const getFullImageUrl = (path: string) => {
@@ -289,15 +280,25 @@ export default function ProfileSettingsScreen() {
 
         <Text style={styles.sectionTitle}>Account Deletion</Text>
         <View style={[styles.menuGroup, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          {renderMenuItem(
-            "trash-outline",
-            "Delete My Account",
-            "Permanent removal",
-            handleDeleteAccount,
-            true
-          )}
-        </View>
-      </ScrollView>
+            {renderMenuItem(
+              "trash-outline",
+              "Delete My Account",
+              "Permanent removal",
+              () => setIsDeleteModalVisible(true),
+              true
+            )}
+          </View>
+        </ScrollView>
+
+        <ConfirmModal
+          visible={isDeleteModalVisible}
+          title="Delete Account"
+          message="Are you sure you want to delete your account? This action is permanent and cannot be undone."
+          confirmText="Delete"
+          type="danger"
+          onConfirm={handleDeleteAccount}
+          onCancel={() => setIsDeleteModalVisible(false)}
+        />
 
       {/* Info Input Modal */}
       <Modal visible={isInputModalVisible} animationType="fade" transparent onRequestClose={() => setIsInputModalVisible(false)}>

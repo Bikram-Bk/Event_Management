@@ -6,9 +6,11 @@ import {
     useSegments,
 } from "expo-router";
 import { useEffect, useState } from "react";
+import { Toast } from "../components/Toast";
 import { AuthProvider, useAuth } from "../context/AuthContext";
 import { FavoritesProvider } from "../context/FavoritesContext";
 import { ThemeProvider } from "../context/ThemeContext";
+import { ToastProvider } from "../context/ToastContext";
 
 const queryClient = new QueryClient();
 
@@ -55,7 +57,10 @@ export default function RootLayout() {
       <ThemeProvider>
         <AuthProvider>
           <FavoritesProvider>
-            <RootLayoutNav />
+            <ToastProvider>
+              <RootLayoutNav />
+              <Toast />
+            </ToastProvider>
           </FavoritesProvider>
         </AuthProvider>
       </ThemeProvider>

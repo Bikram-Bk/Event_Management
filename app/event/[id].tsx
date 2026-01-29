@@ -8,23 +8,23 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import { useRef } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Animated,
-  Dimensions,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Animated,
+    Dimensions,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { Colors, Layout } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
+import { useToast } from "../../context/ToastContext";
 import {
-  useCheckRegistration,
-  useRegisterEvent,
+    useCheckRegistration,
+    useRegisterEvent,
 } from "../../hooks/use-attendees";
 import { useFavorites } from "../../hooks/use-favorites";
 import { useGetUser } from "../../hooks/use-get-user";
@@ -306,6 +306,7 @@ export default function EventDetails() {
   const colors = Colors[actualTheme];
   const scrollY = useRef(new Animated.Value(0)).current;
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { showToast } = useToast();
   const API_URL = Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
 
   const {
@@ -449,7 +450,7 @@ export default function EventDetails() {
       await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
     } catch (error) {
       console.error('Error generating PDF:', error);
-      Alert.alert("Error", "Failed to generate ticket PDF");
+      showToast({ message: "Failed to generate ticket PDF", type: "error" });
     }
   };
 
@@ -464,9 +465,12 @@ export default function EventDetails() {
     }
     try {
       await registerMutation.mutateAsync({ eventId: id as string });
-      Alert.alert("Success", "You have successfully registered for this event! 🎉");
+      showToast({ message: "You have successfully registered for this event! 🎉", type: "success" });
     } catch (error) {
-      Alert.alert("Error", error instanceof Error ? error.message : "Failed to register");
+      showToast({ 
+        message: error instanceof Error ? error.message : "Failed to register", 
+        type: "error" 
+      });
     }
   };
 

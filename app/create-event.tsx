@@ -7,7 +7,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     Platform,
     ScrollView,
@@ -16,10 +15,11 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
+import { useToast } from "../context/ToastContext";
 import { useCategories } from "../hooks/use-categories";
 import { useEvent, useRequestEvent, useUpdateEvent } from "../hooks/use-events";
 
@@ -33,6 +33,7 @@ export default function CreateEventScreen() {
   const { data: existingEvent, isLoading: eventLoading } = useEvent(id as string);
   const createEventMutation = useRequestEvent();
   const updateEventMutation = useUpdateEvent();
+  const { showToast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -133,7 +134,7 @@ export default function CreateEventScreen() {
       return data.data.url;
     } catch (error: any) {
       console.error("Upload error:", error);
-      Alert.alert("Upload Failed", error.message);
+      showToast({ message: error.message || "Upload Failed", type: "error" });
       return null;
     } finally {
       setIsUploading(false);
@@ -156,7 +157,7 @@ export default function CreateEventScreen() {
         }
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to pick image");
+      showToast({ message: "Failed to pick image", type: "error" });
     }
   };
 
@@ -191,7 +192,7 @@ export default function CreateEventScreen() {
         setIsUploading(false);
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to pick gallery images");
+      showToast({ message: "Failed to pick gallery images", type: "error" });
       setIsUploading(false);
     }
   };
@@ -224,7 +225,7 @@ export default function CreateEventScreen() {
       // If updating startDate, ensure lead time and auto-update endDate
       if (pickerState.target === "start") {
         if (newDate < minLeadTime) {
-          Alert.alert("Preparation Time Required", "Events must be scheduled at least 3 days in advance for preparation.");
+          showToast({ message: "Events must be scheduled at least 3 days in advance for preparation.", type: "warning" });
           setPickerState({ ...pickerState, show: false });
           return;
         }
@@ -241,7 +242,7 @@ export default function CreateEventScreen() {
       } else {
         // Ensuring end date is not before start date
         if (newDate <= formData.startDate) {
-          Alert.alert("Invalid Time", "End time must be after start time.");
+          showToast({ message: "End time must be after start time.", type: "error" });
           setPickerState({ ...pickerState, show: false });
           return;
         }
@@ -269,7 +270,7 @@ export default function CreateEventScreen() {
       !formData.categoryId ||
       (!formData.isVirtual && !formData.city)
     ) {
-      Alert.alert("Error", "Please fill in all required fields");
+      showToast({ message: "Please fill in all required fields", type: "error" });
       return;
     }
 
@@ -285,9 +286,8 @@ export default function CreateEventScreen() {
             endDate: formData.endDate.toISOString(),
           },
         });
-        Alert.alert("Success", "Event updated successfully!", [
-          { text: "OK", onPress: () => router.back() },
-        ]);
+        showToast({ message: "Event updated successfully!", type: "success" });
+        setTimeout(() => router.back(), 1500);
       } else {
         await createEventMutation.mutateAsync({
           ...formData,
@@ -296,12 +296,11 @@ export default function CreateEventScreen() {
           startDate: formData.startDate.toISOString(),
           endDate: formData.endDate.toISOString(),
         });
-        Alert.alert("Success", "Event request submitted successfully!", [
-          { text: "OK", onPress: () => router.back() },
-        ]);
+        showToast({ message: "Event request submitted successfully!", type: "success" });
+        setTimeout(() => router.back(), 1500);
       }
     } catch (error: any) {
-      Alert.alert("Error", error.message || `Failed to ${isEditing ? 'update' : 'submit'} event request`);
+      showToast({ message: error.message || `Failed to ${isEditing ? 'update' : 'submit'} event request`, type: "error" });
     }
   };
 

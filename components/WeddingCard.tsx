@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Svg, { ClipPath, Defs, Path, Image as SvgImage } from "react-native-svg";
 import { Layout } from "../constants/Colors";
 import { useFavorites } from "../hooks/use-favorites";
 
@@ -106,7 +106,7 @@ export default function WeddingCard({ event, containerStyle }: EventCardProps) {
                 
                 <View style={styles.evamHeartContainer}>
                   <Ionicons name="heart" size={44} color={accentColor} />
-                  <Text style={styles.evamHeartText}>समक्ष</Text>
+                  <Text style={styles.evamHeartText}>Weds</Text>
                   {/* Rose on Top of Heart */}
                   <Ionicons name="rose" size={24} color="#FF0000" style={styles.roseIcon} />
                 </View>
@@ -119,17 +119,32 @@ export default function WeddingCard({ event, containerStyle }: EventCardProps) {
           {/* Right Section: Ornate Photo Frame */}
           <View style={styles.authenticRightSection}>
             <View style={styles.photoFrameWrapper}>
-              <View style={[styles.photoFrame, { borderColor: goldColor }]}>
-                  <Image
-                    source={{ uri: imageUrl }}
-                    style={styles.authenticImage}
-                    contentFit="cover"
-                    transition={500}
+              <View style={styles.photoFrame}>
+                <Svg height="160" width="160" viewBox="0 0 130 130">
+                  <Defs>
+                    <ClipPath id="heartClip">
+                      <Path d="M 65,35 C 65,22 52,9 33,9 C 13,9 0,22 0,42 C 0,68 33,101 65,124 C 97,101 130,68 130,42 C 130,22 117,9 97,9 C 78,9 65,22 65,35 Z" />
+                    </ClipPath>
+                  </Defs>
+                  {/* Heart Border - No fill to blend with card background */}
+                  <Path 
+                    d="M 65,35 C 65,22 52,9 33,9 C 13,9 0,22 0,42 C 0,68 33,101 65,124 C 97,101 130,68 130,42 C 130,22 117,9 97,9 C 78,9 65,22 65,35 Z" 
+                    fill="none"
+                    stroke={goldColor}
+                    strokeWidth="4"
                   />
+                  <SvgImage
+                    href={{ uri: imageUrl }}
+                    width="130"
+                    height="130"
+                    preserveAspectRatio="xMidYMid slice"
+                    clipPath="url(#heartClip)"
+                  />
+                </Svg>
               </View>
               {/* Corner Ornaments */}
-              <Ionicons name="leaf" size={20} color={goldColor} style={styles.cornerOrnamentTL} />
-              <Ionicons name="leaf" size={20} color={goldColor} style={styles.cornerOrnamentBR} />
+              <Ionicons name="leaf" size={24} color={goldColor} style={styles.cornerOrnamentTL} />
+              <Ionicons name="leaf" size={24} color={goldColor} style={styles.cornerOrnamentBR} />
             </View>
           </View>
         </View>
@@ -321,22 +336,17 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   photoFrameWrapper: {
-    width: 130,
-    height: 130,
+    width: 160,
+    height: 160,
     position: 'relative',
+    transform: [{ translateX: -10 }],
   },
   photoFrame: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 65,
-    borderWidth: 5,
-    overflow: 'hidden',
-    backgroundColor: '#FFF',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 6,
+    width: 160,
+    height: 160,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   authenticImage: {
     width: '100%',

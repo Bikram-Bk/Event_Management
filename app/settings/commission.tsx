@@ -4,17 +4,17 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import { Colors } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
+import { useToast } from "../../context/ToastContext";
 
 export default function CommissionSettings() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function CommissionSettings() {
   const [rate, setRate] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const apiUrl =
     Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
@@ -41,10 +42,10 @@ export default function CommissionSettings() {
       if (data.success) {
         setRate(String(data.data.rate));
       } else {
-        Alert.alert("Error", data.error);
+        showToast({ message: data.error, type: "error" });
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to fetch settings");
+      showToast({ message: "Failed to fetch settings", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -53,7 +54,7 @@ export default function CommissionSettings() {
   const handleSave = async () => {
     const numRate = Number(rate);
     if (isNaN(numRate) || numRate < 0 || numRate > 100) {
-      Alert.alert("Invalid Input", "Rate must be between 0 and 100");
+      showToast({ message: "Rate must be between 0 and 100", type: "warning" });
       return;
     }
 
@@ -70,12 +71,12 @@ export default function CommissionSettings() {
       });
       const data = await response.json();
       if (data.success) {
-        Alert.alert("Success", "Commission rate updated successfully");
+        showToast({ message: "Commission rate updated successfully", type: "success" });
       } else {
-        Alert.alert("Error", data.error);
+        showToast({ message: data.error, type: "error" });
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to update settings");
+      showToast({ message: "Failed to update settings", type: "error" });
     } finally {
       setSaving(false);
     }

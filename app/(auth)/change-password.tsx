@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import { useTheme } from '../../context/ThemeContext';
+import { useToast } from '../../context/ToastContext';
 import { useChangePassword } from '../../hooks/use-change-password';
 
 export default function ChangePasswordScreen() {
@@ -18,28 +19,21 @@ export default function ChangePasswordScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const showToast = (message: string) => {
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(message, ToastAndroid.SHORT);
-    } else {
-      Alert.alert('Notice', message);
-    }
-  };
+  const { showToast: toast } = useToast();
 
   const handleChangePassword = () => {
     if (!password || !confirmPassword) {
-      showToast('Please fill in all fields');
+      toast({ message: 'Please fill in all fields', type: 'warning' });
       return;
     }
 
     if (password !== confirmPassword) {
-      showToast('Passwords do not match');
+      toast({ message: 'Passwords do not match', type: 'warning' });
       return;
     }
 
     if (!params.token) {
-      showToast('Invalid reset token. Please request a new one.');
+      toast({ message: 'Invalid reset token. Please request a new one.', type: 'error' });
       return;
     }
 
@@ -47,11 +41,11 @@ export default function ChangePasswordScreen() {
       { token: params.token, newPassword: password },
       {
         onSuccess: () => {
-          showToast('Password changed successfully! Please sign in.');
+          toast({ message: 'Password changed successfully! Please sign in.', type: 'success' });
           router.replace("/(auth)/sign-in");
         },
         onError: (error) => {
-          showToast(error.message || 'Failed to change password');
+          toast({ message: error.message || 'Failed to change password', type: 'error' });
         },
       }
     );
