@@ -30,13 +30,14 @@ interface NwaranCardProps {
     babyGender?: string;
     muhurtaTime?: string;
   };
+  containerStyle?: any;
 }
 
 const accentColor = "#FFC107"; // Turmeric Yellow
 const pureWhite = "#FFFFFF";
 const tikkaRed = "#D32F2F"; // Tikka Red
 
-export default function NwaranCard({ event }: NwaranCardProps) {
+export default function NwaranCard({ event, containerStyle }: NwaranCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   
   const handlePress = () => {
@@ -50,7 +51,7 @@ export default function NwaranCard({ event }: NwaranCardProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, styles.nwaranCardContainer]}
+      style={[styles.card, styles.nwaranCardContainer, containerStyle]}
       onPress={handlePress}
       activeOpacity={0.9}
     >

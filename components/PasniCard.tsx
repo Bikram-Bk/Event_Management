@@ -30,13 +30,14 @@ interface PasniCardProps {
     babyGender?: string;
     muhurtaTime?: string;
   };
+  containerStyle?: any;
 }
 
 const accentColor = "#D32F2F"; // Auspicious Red
 const silverColor = "#E0E0E0"; // Traditional Silver
 const goldColor = "#FFB300"; // Marigold Yellow
 
-export default function PasniCard({ event }: PasniCardProps) {
+export default function PasniCard({ event, containerStyle }: PasniCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   
   const handlePress = () => {
@@ -53,7 +54,7 @@ export default function PasniCard({ event }: PasniCardProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, styles.pasniCardContainer]}
+      style={[styles.card, styles.pasniCardContainer, containerStyle]}
       onPress={handlePress}
       activeOpacity={0.9}
     >

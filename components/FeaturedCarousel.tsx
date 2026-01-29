@@ -1,17 +1,23 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useRef } from "react";
 import {
-    Animated,
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { Colors, Layout } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
+import { useFavorites } from "../hooks/use-favorites";
+import BartabandCard from "./BartabandCard";
+import NwaranCard from "./NwaranCard";
+import PasniCard from "./PasniCard";
+import WeddingCard from "./WeddingCard";
 
 const { width } = Dimensions.get("window");
 const ITEM_WIDTH = width * 0.85;
@@ -24,6 +30,7 @@ interface FeaturedCarouselProps {
 export default function FeaturedCarousel({ events }: FeaturedCarouselProps) {
   const { actualTheme } = useTheme();
   const colors = Colors[actualTheme];
+  const { toggleFavorite, isFavorite } = useFavorites();
   const scrollX = useRef(new Animated.Value(0)).current;
 
   if (!events || events.length === 0) return null;
@@ -44,6 +51,34 @@ export default function FeaturedCarousel({ events }: FeaturedCarouselProps) {
       ? item.coverImage
       : `${process.env.EXPO_PUBLIC_API_URL}${item.coverImage}`;
 
+    const isWedding = item.category?.name === "Wedding";
+    const isPasni = item.category?.name === "Pasni";
+    const isBartaband = item.category?.name === "Bartaband";
+    const isNwaran = item.category?.name === "Nwaran";
+
+    if (isWedding || isPasni || isBartaband || isNwaran) {
+      const cardStyle = {
+        height: 400,
+        marginHorizontal: 0,
+        marginBottom: 0,
+      };
+
+      return (
+        <Animated.View
+          style={{
+            transform: [{ scale }],
+            width: ITEM_WIDTH,
+            marginHorizontal: SPACING / 2,
+          }}
+        >
+          {isWedding && <WeddingCard event={item} containerStyle={cardStyle} />}
+          {isPasni && <PasniCard event={item} containerStyle={cardStyle} />}
+          {isBartaband && <BartabandCard event={item as any} containerStyle={cardStyle} />}
+          {isNwaran && <NwaranCard event={item as any} containerStyle={cardStyle} />}
+        </Animated.View>
+      );
+    }
+
     return (
       <TouchableOpacity
         activeOpacity={0.9}
@@ -62,6 +97,17 @@ export default function FeaturedCarousel({ events }: FeaturedCarouselProps) {
             colors={["transparent", "rgba(0,0,0,0.9)"]}
             style={styles.gradient}
           />
+
+          <TouchableOpacity 
+            style={styles.favoriteButton} 
+            onPress={() => toggleFavorite(item)}
+          >
+            <Ionicons 
+              name={isFavorite(item.id) ? "heart" : "heart-outline"} 
+              size={24} 
+              color={isFavorite(item.id) ? "#FF3B30" : "#FFF"} 
+            />
+          </TouchableOpacity>
 
           <View style={styles.content}>
             <View style={[styles.badge, { backgroundColor: colors.tint }]}>
@@ -167,5 +213,19 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 0.8)",
     fontSize: 16,
     fontWeight: "500",
+  },
+  favoriteButton: {
+    position: "absolute",
+    top: Layout.spacing.xl,
+    right: Layout.spacing.xl,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
 });

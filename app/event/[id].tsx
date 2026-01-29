@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import * as Print from "expo-print";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import * as Sharing from "expo-sharing";
 import { useRef } from "react";
 import {
   ActivityIndicator,
@@ -25,6 +27,7 @@ import {
   useRegisterEvent,
 } from "../../hooks/use-attendees";
 import { useFavorites } from "../../hooks/use-favorites";
+import { useGetUser } from "../../hooks/use-get-user";
 
 const { width, height } = Dimensions.get("window");
 const IMG_HEIGHT = 400;
@@ -270,6 +273,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  downloadTicketButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    gap: 16,
+  },
+  downloadIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  downloadTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  downloadSub: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
 });
 
 export default function EventDetails() {
@@ -297,7 +324,135 @@ export default function EventDetails() {
 
   const { data: registration, isLoading: isCheckingRegistration } = useCheckRegistration(id as string);
   const registerMutation = useRegisterEvent();
+  const { data: userData } = useGetUser();
  
+  const handleDownloadTicket = async () => {
+    if (!registration || !event) return;
+    
+    const attendeeName = userData?.data?.username || userData?.data?.name || registration.guestName || 'Verified Attendee';
+    const isFree = event.price === 0 || !event.price;
+    const price = Number(event.price) || 0;
+    const quantity = registration.ticketCount || 1;
+    const total = registration.paymentAmount ? Number(registration.paymentAmount) : (price * quantity);
+    const currency = event.currency || 'NPR';
+    const transactionRef = registration.transactionId || registration.pidx || registration.id.toUpperCase();
+    
+    const html = `
+      <html>
+        <head>
+          <style>
+            body { font-family: 'Helvetica', sans-serif; padding: 20px; color: #1e293b; background-color: #f8fafc; }
+            .container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; }
+            
+            /* Ticket Section */
+            .ticket { padding: 40px; position: relative; }
+            .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
+            .logo { font-size: 20px; font-weight: 900; color: #6366f1; letter-spacing: -0.5px; margin-bottom: 8px; text-transform: uppercase; }
+            .title { font-size: 28px; font-weight: 800; margin: 0; color: #0f172a; line-height: 1.2; }
+            
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 10px; }
+            .info-item { margin-bottom: 4px; }
+            .label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 2px; }
+            .value { font-size: 15px; font-weight: 600; color: #1e293b; }
+            
+            /* Perforation Line */
+            .perforation { border-top: 2px dashed #cbd5e1; position: relative; margin: 0 20px; }
+            .perforation::before, .perforation::after { content: ''; position: absolute; top: -10px; width: 20px; height: 20px; background-color: #f8fafc; border-radius: 50%; border: 1px solid #e2e8f0; }
+            .perforation::before { left: -31px; }
+            .perforation::after { right: -31px; }
+
+            /* Receipt Section */
+            .receipt { padding: 30px 40px; background-color: #fafafa; }
+            .receipt-title { font-size: 14px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; color: #475569; display: flex; justify-content: space-between; }
+            
+            .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
+            .receipt-row.total { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 18px; font-weight: 800; color: #6366f1; }
+            
+            .footer { margin-top: 30px; text-align: center; font-size: 11px; color: #94a3b8; line-height: 1.5; }
+            .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; background: #e0f2fe; color: #0369a1; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="ticket">
+              <div class="header">
+                <div class="logo">EVENT<span style="color: #64748b">LY</span></div>
+                <h2 class="title">${event.title}</h2>
+              </div>
+              
+              <div class="info-grid">
+                <div class="info-item">
+                  <p class="label">Date & Time</p>
+                  <p class="value">${new Date(event.startDate).toLocaleDateString()} at ${new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
+                <div class="info-item">
+                  <p class="label">Location</p>
+                  <p class="value">${event.venueName || event.city || 'Online'}</p>
+                </div>
+                <div class="info-item">
+                  <p class="label">Attendee</p>
+                  <p class="value">${attendeeName}</p>
+                </div>
+                <div class="info-item">
+                  <p class="label">Pass Status</p>
+                  <p class="badge">${isFree ? 'Free Entry' : 'Paid Admission'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="perforation"></div>
+
+            <div class="receipt">
+              <div class="receipt-title">
+                <span>Order Summary</span>
+                <span style="font-size: 10px; color: #94a3b8">#${registration.id.slice(-8).toUpperCase()}</span>
+              </div>
+              
+              <div class="receipt-row">
+                <span>Ticket Breakdown</span>
+                <span>${quantity}x ${registration.ticketType || 'General'}</span>
+              </div>
+              
+              <div class="receipt-row" style="color: #64748b">
+                <span>Unit Price</span>
+                <span>${currency} ${price.toLocaleString()}</span>
+              </div>
+
+              ${!isFree ? `
+              <div class="receipt-row" style="color: #64748b">
+                <span>Payment Method</span>
+                <span>Digital Wallet</span>
+              </div>
+              <div class="receipt-row" style="color: #64748b">
+                <span>Transaction Ref</span>
+                <span style="font-family: monospace;">${transactionRef}</span>
+              </div>
+              ` : ''}
+
+              <div class="receipt-row total">
+                <span>Total Amount</span>
+                <span>${currency} ${total.toLocaleString()}</span>
+              </div>
+
+              <div class="footer">
+                <p>Purchased on ${new Date(registration.registeredAt || Date.now()).toLocaleDateString()}</p>
+                <p>This is a digital pass. Please present it at the gate for validation.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    try {
+      const { uri } = await Print.printToFileAsync({ html });
+      await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      Alert.alert("Error", "Failed to generate ticket PDF");
+    }
+  };
+
   const actionTextColor = actualTheme === 'dark' ? colors.background : '#FFF';
 
   const handleRegister = async () => {
@@ -476,6 +631,28 @@ export default function EventDetails() {
               <Ionicons name="map" size={32} color={colors.secondary} />
               <Text style={[styles.mapText, { color: colors.secondary }]}>{event.venueName || event.address || event.city}</Text>
             </View>
+
+            {registration && (registration.paymentStatus === 'COMPLETED' || event.price === 0) && (
+              <TouchableOpacity
+                style={[
+                  styles.downloadTicketButton,
+                  { 
+                    backgroundColor: colors.tint + '10',
+                    borderColor: colors.tint,
+                    marginTop: 24
+                  }
+                ]}
+                onPress={handleDownloadTicket}
+              >
+                <View style={[styles.downloadIconBox, { backgroundColor: colors.tint }]}>
+                    <Ionicons name="download" size={20} color="#FFF" />
+                </View>
+                <View>
+                    <Text style={[styles.downloadTitle, { color: colors.text }]}>Download Ticket</Text>
+                    <Text style={[styles.downloadSub, { color: colors.secondary }]}>Save your confirmation for entry</Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </Animated.ScrollView>

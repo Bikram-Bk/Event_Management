@@ -29,12 +29,13 @@ interface EventCardProps {
     brideName?: string;
     groomName?: string;
   };
+  containerStyle?: any;
 }
 
 const accentColor = "#B71C1C"; // Deeper Crimson
 const goldColor = "#D4AF37"; // Authentic Gold
 
-export default function WeddingCard({ event }: EventCardProps) {
+export default function WeddingCard({ event, containerStyle }: EventCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   
   const handlePress = () => {
@@ -48,7 +49,7 @@ export default function WeddingCard({ event }: EventCardProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, styles.authenticWeddingCard]}
+      style={[styles.card, styles.authenticWeddingCard, containerStyle]}
       onPress={handlePress}
       activeOpacity={0.9}
     >

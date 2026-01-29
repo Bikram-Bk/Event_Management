@@ -29,13 +29,14 @@ interface BartabandCardProps {
     boyName?: string;
     muhurtaTime?: string;
   };
+  containerStyle?: any;
 }
 
 const accentColor = "#FF6F00"; // Traditional Saffron
 const marigoldColor = "#FFB300"; // Marigold Yellow
 const threadColor = "#FFD54F"; // Janai Thread Color
 
-export default function BartabandCard({ event }: BartabandCardProps) {
+export default function BartabandCard({ event, containerStyle }: BartabandCardProps) {
   const { toggleFavorite, isFavorite } = useFavorites();
   
   const handlePress = () => {
@@ -49,7 +50,7 @@ export default function BartabandCard({ event }: BartabandCardProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.card, styles.bartabandCardContainer]}
+      style={[styles.card, styles.bartabandCardContainer, containerStyle]}
       onPress={handlePress}
       activeOpacity={0.9}
     >

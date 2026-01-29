@@ -6,17 +6,17 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
@@ -39,8 +39,8 @@ export default function CreateEventScreen() {
     title: "",
     description: "",
     categoryId: "",
-    startDate: new Date(),
-    endDate: new Date(Date.now() + 3600000), // Default to 1 hour later
+    startDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // Default to 4 days in future
+    endDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 3600000), // 4 days + 1 hour later
     venueName: "",
     address: "",
     city: "",
@@ -206,26 +206,48 @@ export default function CreateEventScreen() {
     }
 
     if (selectedDate) {
-      const currentDate =
-        pickerState.target === "start" ? formData.startDate : formData.endDate;
+      // Enforce 3-day lead time minimum for preparation (from start of day)
+      const minLeadTime = new Date();
+      minLeadTime.setHours(0, 0, 0, 0);
+      minLeadTime.setDate(minLeadTime.getDate() + 3);
+      
+      const targetField = pickerState.target === "start" ? "startDate" : "endDate";
+      const currentTargetDate = formData[targetField];
+      let newDate = new Date(currentTargetDate);
 
-      let newDate = new Date(currentDate);
       if (pickerState.mode === "date") {
-        newDate.setFullYear(
-          selectedDate.getFullYear(),
-          selectedDate.getMonth(),
-          selectedDate.getDate()
-        );
+        newDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
       } else {
-        newDate.setHours(selectedDate.getHours(), selectedDate.getMinutes());
+        newDate.setHours(selectedDate.getHours(), selectedDate.getMinutes(), 0, 0);
       }
 
-      setFormData({
-        ...formData,
-        [pickerState.target === "start" ? "startDate" : "endDate"]: newDate,
-      });
+      // If updating startDate, ensure lead time and auto-update endDate
+      if (pickerState.target === "start") {
+        if (newDate < minLeadTime) {
+          Alert.alert("Preparation Time Required", "Events must be scheduled at least 3 days in advance for preparation.");
+          setPickerState({ ...pickerState, show: false });
+          return;
+        }
 
-      // On Android, if we just finished 'date', we might want to immediately show 'time'
+        // Calculate duration to keep it synced
+        const duration = formData.endDate.getTime() - formData.startDate.getTime();
+        const newEndDate = new Date(newDate.getTime() + (duration > 0 ? duration : 3600000));
+        
+        setFormData({
+          ...formData,
+          startDate: newDate,
+          endDate: newEndDate,
+        });
+      } else {
+        // Ensuring end date is not before start date
+        if (newDate <= formData.startDate) {
+          Alert.alert("Invalid Time", "End time must be after start time.");
+          setPickerState({ ...pickerState, show: false });
+          return;
+        }
+        setFormData({ ...formData, endDate: newDate });
+      }
+
       if (isAndroid && pickerState.mode === "date") {
         setPickerState({ ...pickerState, mode: "time", show: true });
       } else {
@@ -630,13 +652,10 @@ export default function CreateEventScreen() {
 
           {pickerState.show && (
             <DateTimePicker
-              value={
-                pickerState.target === "start"
-                  ? formData.startDate
-                  : formData.endDate
-              }
+              value={pickerState.target === "start" ? formData.startDate : formData.endDate}
               mode={pickerState.mode}
               is24Hour={false}
+              minimumDate={pickerState.target === "start" ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) : formData.startDate}
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={handleDateChange}
             />
