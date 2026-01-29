@@ -8,23 +8,23 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from "expo-sharing";
 import { useRef } from "react";
 import {
-    ActivityIndicator,
-    Animated,
-    Dimensions,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Animated,
+  Dimensions,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { Colors, Layout } from "../../constants/Colors";
 import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/ToastContext";
 import {
-    useCheckRegistration,
-    useRegisterEvent,
+  useCheckRegistration,
+  useRegisterEvent,
 } from "../../hooks/use-attendees";
 import { useFavorites } from "../../hooks/use-favorites";
 import { useGetUser } from "../../hooks/use-get-user";
@@ -614,7 +614,7 @@ export default function EventDetails() {
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>About this Event</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Services</Text>
             <Text style={[styles.description, { color: colors.text, opacity: 0.8 }]}>{event.description}</Text>
           </View>
 

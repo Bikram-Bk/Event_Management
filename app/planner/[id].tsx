@@ -226,7 +226,7 @@ export default function PlannerDetails() {
           </View>
 
           <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Description</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Services</Text>
             <Text style={[styles.description, { color: colors.secondary }]}>{event.description}</Text>
           </View>
 

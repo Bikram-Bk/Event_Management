@@ -6,16 +6,16 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { Colors } from "../constants/Colors";
 import { useTheme } from "../context/ThemeContext";
@@ -410,10 +410,10 @@ export default function CreateEventScreen() {
             ))}
           </View>
 
-          <Text style={[styles.label, { color: colors.secondary }]}>Description *</Text>
+          <Text style={[styles.label, { color: colors.secondary }]}>Services *</Text>
           <TextInput
             style={[styles.input, styles.textArea, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-            placeholder="Describe your event"
+            placeholder="Add Services"
             placeholderTextColor={colors.secondary}
             multiline
             numberOfLines={4}
