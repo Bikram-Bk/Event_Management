@@ -3,18 +3,20 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Image,
-    Modal,
-    RefreshControl,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Image,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import ChatButton from "../../components/ChatButton";
+import ChatModal from "../../components/ChatModal";
 import EventCard from "../../components/EventCard";
 import FeaturedCarousel from "../../components/FeaturedCarousel";
 import { Colors, Layout } from "../../constants/Colors";
@@ -27,9 +29,11 @@ export default function DiscoverScreen() {
   const router = useRouter();
   const { actualTheme } = useTheme();
   const colors = Colors[actualTheme];
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
+  const [selectedCategory, setSelectedCategory] = useState<
+    string | undefined
+  >();
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Search and Filter States
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -39,6 +43,7 @@ export default function DiscoverScreen() {
     isFree: undefined as boolean | undefined,
     isVirtual: undefined as boolean | undefined,
   });
+  const [isChatVisible, setIsChatVisible] = useState(false);
 
   // Debounce search query
   useEffect(() => {
@@ -49,7 +54,8 @@ export default function DiscoverScreen() {
   }, [searchQuery]);
 
   const { data: userData } = useGetUser();
-  const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useCategories();
   const {
     data: eventsData,
     isLoading: eventsLoading,
@@ -72,7 +78,7 @@ export default function DiscoverScreen() {
 
   const handleCategoryPress = (categoryId: string) => {
     setSelectedCategory(
-      selectedCategory === categoryId ? undefined : categoryId
+      selectedCategory === categoryId ? undefined : categoryId,
     );
   };
 
@@ -88,12 +94,20 @@ export default function DiscoverScreen() {
   const user = userData?.data;
   const events = eventsData?.data || [];
   const featuredEvents = events.slice(0, 3);
-  
+
   // Show all results if any filter or search is active, otherwise slice to account for Featured section
-  const isFiltering = !!(selectedCategory || debouncedSearch || filters.city || filters.isFree !== undefined || filters.isVirtual !== undefined);
+  const isFiltering = !!(
+    selectedCategory ||
+    debouncedSearch ||
+    filters.city ||
+    filters.isFree !== undefined ||
+    filters.isVirtual !== undefined
+  );
   const listEvents = isFiltering ? events : events.slice(3);
 
-  console.log(`[DiscoverScreen] Events loaded: ${events.length}, Filtering: ${isFiltering}`);
+  console.log(
+    `[DiscoverScreen] Events loaded: ${events.length}, Filtering: ${isFiltering}`,
+  );
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -101,7 +115,7 @@ export default function DiscoverScreen() {
     if (hour < 18) return "Good Afternoon";
     return "Good Evening";
   };
- 
+
   const getFullImageUrl = (path: string) => {
     if (!path) return null;
     if (path.startsWith("http")) return path;
@@ -109,51 +123,92 @@ export default function DiscoverScreen() {
       Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL;
     return `${apiUrl}${path}`;
   };
- 
+
   const isLoadingInitial = eventsLoading && !eventsData;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle={actualTheme === 'dark' ? "light-content" : "dark-content"} />
+      <StatusBar
+        barStyle={actualTheme === "dark" ? "light-content" : "dark-content"}
+      />
 
       {/* Modern Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.avatarContainer}>
             {user?.avatar ? (
-              <Image source={{ uri: getFullImageUrl(user.avatar) || undefined }} style={styles.avatar} />
+              <Image
+                source={{ uri: getFullImageUrl(user.avatar) || undefined }}
+                style={styles.avatar}
+              />
             ) : (
-              <View style={[styles.avatarPlaceholder, { backgroundColor: colors.border }]}>
+              <View
+                style={[
+                  styles.avatarPlaceholder,
+                  { backgroundColor: colors.border },
+                ]}
+              >
                 <Ionicons name="person" size={20} color={colors.tint} />
               </View>
             )}
           </View>
           <View>
-            <Text style={[styles.greetingText, { color: colors.secondary }]}>{getGreeting()},</Text>
-            <Text style={[styles.userNameText, { color: colors.text }]} numberOfLines={1}>
+            <Text style={[styles.greetingText, { color: colors.secondary }]}>
+              {getGreeting()},
+            </Text>
+            <Text
+              style={[styles.userNameText, { color: colors.text }]}
+              numberOfLines={1}
+            >
               {user?.username || "Guest"}
             </Text>
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <TouchableOpacity 
-            style={[styles.notificationButton, { backgroundColor: actualTheme === 'dark' ? colors.card : '#fff' }]}
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <TouchableOpacity
+            style={[
+              styles.notificationButton,
+              {
+                backgroundColor: actualTheme === "dark" ? colors.card : "#fff",
+              },
+            ]}
             onPress={() => router.push("/create-event")}
           >
             <Ionicons name="add" size={24} color={colors.tint} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.notificationButton, { backgroundColor: actualTheme === 'dark' ? colors.card : '#fff' }]}>
-            <Ionicons name="notifications-outline" size={24} color={colors.text} />
-            <View style={[styles.badge, { borderColor: actualTheme === 'dark' ? colors.card : '#fff' }]} />
+          <TouchableOpacity
+            style={[
+              styles.notificationButton,
+              {
+                backgroundColor: actualTheme === "dark" ? colors.card : "#fff",
+              },
+            ]}
+          >
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={colors.text}
+            />
+            <View
+              style={[
+                styles.badge,
+                { borderColor: actualTheme === "dark" ? colors.card : "#fff" },
+              ]}
+            />
           </TouchableOpacity>
         </View>
       </View>
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <View style={[styles.searchBar, { backgroundColor: actualTheme === 'dark' ? colors.card : '#fff' }]}>
+        <View
+          style={[
+            styles.searchBar,
+            { backgroundColor: actualTheme === "dark" ? colors.card : "#fff" },
+          ]}
+        >
           <Ionicons name="search" size={20} color={colors.secondary} />
           <TextInput
             style={[styles.searchInput, { color: colors.text }]}
@@ -164,18 +219,29 @@ export default function DiscoverScreen() {
           />
           {searchQuery !== "" && (
             <TouchableOpacity onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={18} color={colors.secondary} />
+              <Ionicons
+                name="close-circle"
+                size={18}
+                color={colors.secondary}
+              />
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity 
-          style={[styles.filterButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            { backgroundColor: colors.primary, shadowColor: colors.primary },
+          ]}
           onPress={() => {
             console.log("[DiscoverScreen] Filter button pressed");
             setFilterModalVisible(true);
           }}
         >
-          <Ionicons name="options-outline" size={20} color={actualTheme === 'dark' ? colors.background : '#fff'} />
+          <Ionicons
+            name="options-outline"
+            size={20}
+            color={actualTheme === "dark" ? colors.background : "#fff"}
+          />
         </TouchableOpacity>
       </View>
 
@@ -196,20 +262,26 @@ export default function DiscoverScreen() {
           contentContainerStyle={{ paddingBottom: 100 }}
         >
           {/* Featured Section */}
-          {!selectedCategory && !debouncedSearch && featuredEvents.length > 0 && (
-            <View style={styles.featuredSection}>
-              <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Featured</Text>
+          {!selectedCategory &&
+            !debouncedSearch &&
+            featuredEvents.length > 0 && (
+              <View style={styles.featuredSection}>
+                <View style={styles.sectionHeader}>
+                  <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                    Featured
+                  </Text>
+                </View>
+                <FeaturedCarousel events={featuredEvents} />
               </View>
-              <FeaturedCarousel events={featuredEvents} />
-            </View>
-          )}
+            )}
 
           {/* Categories */}
           {!categoriesLoading && categoriesData && (
             <View style={styles.categoriesSection}>
               <View style={styles.sectionHeader}>
-                <Text style={[styles.sectionTitle, { color: colors.text }]}>Categories</Text>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  Categories
+                </Text>
               </View>
               <ScrollView
                 horizontal
@@ -221,24 +293,61 @@ export default function DiscoverScreen() {
                     key={category.id}
                     style={[
                       styles.categoryChip,
-                      { backgroundColor: actualTheme === 'dark' ? colors.card : '#fff', borderColor: colors.border },
-                      selectedCategory === category.id &&
-                        { backgroundColor: colors.primary, borderColor: colors.primary },
+                      {
+                        backgroundColor:
+                          actualTheme === "dark" ? colors.card : "#fff",
+                        borderColor: colors.border,
+                      },
+                      selectedCategory === category.id && {
+                        backgroundColor: colors.primary,
+                        borderColor: colors.primary,
+                      },
                     ]}
                     onPress={() => handleCategoryPress(category.id)}
                   >
-                    {category.icon && (category.icon.startsWith('http') || category.icon.startsWith('/')) ? (
-                      <Image 
-                        source={{ uri: category.icon.startsWith('/') ? `${Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL}${category.icon}` : category.icon }} 
-                        style={[styles.categoryIconImage, { tintColor: selectedCategory === category.id ? '#fff' : undefined }]}
+                    {category.icon &&
+                    (category.icon.startsWith("http") ||
+                      category.icon.startsWith("/")) ? (
+                      <Image
+                        source={{
+                          uri: category.icon.startsWith("/")
+                            ? `${Constants.expoConfig?.extra?.apiUrl || process.env.EXPO_PUBLIC_API_URL}${category.icon}`
+                            : category.icon,
+                        }}
+                        style={[
+                          styles.categoryIconImage,
+                          {
+                            tintColor:
+                              selectedCategory === category.id
+                                ? "#fff"
+                                : undefined,
+                          },
+                        ]}
                       />
                     ) : (
-                      <Text style={[styles.categoryIcon, { color: selectedCategory === category.id ? '#fff' : colors.text }]}>{category.icon || "✨"}</Text>
+                      <Text
+                        style={[
+                          styles.categoryIcon,
+                          {
+                            color:
+                              selectedCategory === category.id
+                                ? "#fff"
+                                : colors.text,
+                          },
+                        ]}
+                      >
+                        {category.icon || "✨"}
+                      </Text>
                     )}
                     <Text
                       style={[
                         styles.categoryName,
-                        { color: selectedCategory === category.id ? '#fff' : colors.secondary },
+                        {
+                          color:
+                            selectedCategory === category.id
+                              ? "#fff"
+                              : colors.secondary,
+                        },
                         selectedCategory === category.id &&
                           styles.categoryNameActive,
                       ]}
@@ -255,11 +364,20 @@ export default function DiscoverScreen() {
           <View style={styles.eventsSection}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                {selectedCategory || debouncedSearch ? "Found Events" : "Trending"} ( {listEvents.length} )
+                {selectedCategory || debouncedSearch
+                  ? "Found Events"
+                  : "Trending"}{" "}
+                ( {listEvents.length} )
               </Text>
-              {(selectedCategory || debouncedSearch || filters.city || filters.isFree !== undefined || filters.isVirtual !== undefined) && (
+              {(selectedCategory ||
+                debouncedSearch ||
+                filters.city ||
+                filters.isFree !== undefined ||
+                filters.isVirtual !== undefined) && (
                 <TouchableOpacity onPress={resetFilters}>
-                  <Text style={[styles.seeAllText, { color: colors.tint }]}>Clear All</Text>
+                  <Text style={[styles.seeAllText, { color: colors.tint }]}>
+                    Clear All
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -271,8 +389,14 @@ export default function DiscoverScreen() {
                 ))
               ) : (
                 <View style={styles.emptyState}>
-                  <Ionicons name="calendar-outline" size={48} color={colors.secondary} />
-                  <Text style={[styles.emptyText, { color: colors.secondary }]}>No events found</Text>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={48}
+                    color={colors.secondary}
+                  />
+                  <Text style={[styles.emptyText, { color: colors.secondary }]}>
+                    No events found
+                  </Text>
                 </View>
               )}
             </View>
@@ -288,17 +412,21 @@ export default function DiscoverScreen() {
         onRequestClose={() => setFilterModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalDismissArea} 
-            activeOpacity={1} 
-            onPress={() => setFilterModalVisible(false)} 
+          <TouchableOpacity
+            style={styles.modalDismissArea}
+            activeOpacity={1}
+            onPress={() => setFilterModalVisible(false)}
           />
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-            <View style={[styles.dragIndicator, { backgroundColor: colors.border }]} />
-            
+            <View
+              style={[styles.dragIndicator, { backgroundColor: colors.border }]}
+            />
+
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Filters</Text>
-              <TouchableOpacity 
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Filters
+              </Text>
+              <TouchableOpacity
                 style={[styles.closeButton, { backgroundColor: colors.border }]}
                 onPress={() => setFilterModalVisible(false)}
               >
@@ -306,101 +434,308 @@ export default function DiscoverScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              style={styles.modalBody}
+              showsVerticalScrollIndicator={false}
+            >
               <View style={styles.modalSection}>
                 <View style={styles.labelRow}>
-                  <Ionicons name="location-outline" size={18} color={colors.tint} />
-                  <Text style={[styles.label, { color: colors.text }]}>City</Text>
+                  <Ionicons
+                    name="location-outline"
+                    size={18}
+                    color={colors.tint}
+                  />
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    City
+                  </Text>
                 </View>
                 <TextInput
-                  style={[styles.modalInput, { backgroundColor: actualTheme === 'dark' ? colors.background : '#F8F9FA', borderColor: colors.border, color: colors.text }]}
+                  style={[
+                    styles.modalInput,
+                    {
+                      backgroundColor:
+                        actualTheme === "dark" ? colors.background : "#F8F9FA",
+                      borderColor: colors.border,
+                      color: colors.text,
+                    },
+                  ]}
                   placeholder="Enter city"
                   placeholderTextColor={colors.secondary}
                   value={filters.city}
-                  onChangeText={(text) => setFilters({ ...filters, city: text })}
+                  onChangeText={(text) =>
+                    setFilters({ ...filters, city: text })
+                  }
                 />
               </View>
 
               <View style={styles.modalSection}>
                 <View style={styles.labelRow}>
                   <Ionicons name="cash-outline" size={18} color={colors.tint} />
-                  <Text style={[styles.label, { color: colors.text }]}>Pricing</Text>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Pricing
+                  </Text>
                 </View>
                 <View style={styles.filterRow}>
                   <TouchableOpacity
-                    style={[styles.filterChip, { backgroundColor: actualTheme === 'dark' ? colors.background : '#fff', borderColor: colors.border }, filters.isFree === true && { backgroundColor: colors.primary, borderColor: colors.primary }]}
-                    onPress={() => setFilters({ ...filters, isFree: filters.isFree === true ? undefined : true })}
+                    style={[
+                      styles.filterChip,
+                      {
+                        backgroundColor:
+                          actualTheme === "dark" ? colors.background : "#fff",
+                        borderColor: colors.border,
+                      },
+                      filters.isFree === true && {
+                        backgroundColor: colors.primary,
+                        borderColor: colors.primary,
+                      },
+                    ]}
+                    onPress={() =>
+                      setFilters({
+                        ...filters,
+                        isFree: filters.isFree === true ? undefined : true,
+                      })
+                    }
                   >
-                    <Ionicons 
-                      name="gift-outline" 
-                      size={16} 
-                      color={filters.isFree === true ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary} 
+                    <Ionicons
+                      name="gift-outline"
+                      size={16}
+                      color={
+                        filters.isFree === true
+                          ? actualTheme === "dark"
+                            ? colors.background
+                            : "#fff"
+                          : colors.secondary
+                      }
                     />
-                    <Text style={[styles.filterChipText, { color: filters.isFree === true ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary }]}>Free</Text>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        {
+                          color:
+                            filters.isFree === true
+                              ? actualTheme === "dark"
+                                ? colors.background
+                                : "#fff"
+                              : colors.secondary,
+                        },
+                      ]}
+                    >
+                      Free
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.filterChip, { backgroundColor: actualTheme === 'dark' ? colors.background : '#fff', borderColor: colors.border }, filters.isFree === false && { backgroundColor: colors.primary, borderColor: colors.primary }]}
-                    onPress={() => setFilters({ ...filters, isFree: filters.isFree === false ? undefined : false })}
+                    style={[
+                      styles.filterChip,
+                      {
+                        backgroundColor:
+                          actualTheme === "dark" ? colors.background : "#fff",
+                        borderColor: colors.border,
+                      },
+                      filters.isFree === false && {
+                        backgroundColor: colors.primary,
+                        borderColor: colors.primary,
+                      },
+                    ]}
+                    onPress={() =>
+                      setFilters({
+                        ...filters,
+                        isFree: filters.isFree === false ? undefined : false,
+                      })
+                    }
                   >
-                    <Ionicons 
-                      name="card-outline" 
-                      size={16} 
-                      color={filters.isFree === false ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary} 
+                    <Ionicons
+                      name="card-outline"
+                      size={16}
+                      color={
+                        filters.isFree === false
+                          ? actualTheme === "dark"
+                            ? colors.background
+                            : "#fff"
+                          : colors.secondary
+                      }
                     />
-                    <Text style={[styles.filterChipText, { color: filters.isFree === false ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary }]}>Paid</Text>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        {
+                          color:
+                            filters.isFree === false
+                              ? actualTheme === "dark"
+                                ? colors.background
+                                : "#fff"
+                              : colors.secondary,
+                        },
+                      ]}
+                    >
+                      Paid
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
               <View style={styles.modalSection}>
                 <View style={styles.labelRow}>
-                  <Ionicons name="globe-outline" size={18} color={colors.tint} />
-                  <Text style={[styles.label, { color: colors.text }]}>Event Type</Text>
+                  <Ionicons
+                    name="globe-outline"
+                    size={18}
+                    color={colors.tint}
+                  />
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Event Type
+                  </Text>
                 </View>
                 <View style={styles.filterRow}>
                   <TouchableOpacity
-                    style={[styles.filterChip, { backgroundColor: actualTheme === 'dark' ? colors.background : '#fff', borderColor: colors.border }, filters.isVirtual === true && { backgroundColor: colors.primary, borderColor: colors.primary }]}
-                    onPress={() => setFilters({ ...filters, isVirtual: filters.isVirtual === true ? undefined : true })}
+                    style={[
+                      styles.filterChip,
+                      {
+                        backgroundColor:
+                          actualTheme === "dark" ? colors.background : "#fff",
+                        borderColor: colors.border,
+                      },
+                      filters.isVirtual === true && {
+                        backgroundColor: colors.primary,
+                        borderColor: colors.primary,
+                      },
+                    ]}
+                    onPress={() =>
+                      setFilters({
+                        ...filters,
+                        isVirtual:
+                          filters.isVirtual === true ? undefined : true,
+                      })
+                    }
                   >
-                    <Ionicons 
-                      name="videocam-outline" 
-                      size={16} 
-                      color={filters.isVirtual === true ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary} 
+                    <Ionicons
+                      name="videocam-outline"
+                      size={16}
+                      color={
+                        filters.isVirtual === true
+                          ? actualTheme === "dark"
+                            ? colors.background
+                            : "#fff"
+                          : colors.secondary
+                      }
                     />
-                    <Text style={[styles.filterChipText, { color: filters.isVirtual === true ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary }]}>Virtual</Text>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        {
+                          color:
+                            filters.isVirtual === true
+                              ? actualTheme === "dark"
+                                ? colors.background
+                                : "#fff"
+                              : colors.secondary,
+                        },
+                      ]}
+                    >
+                      Virtual
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={[styles.filterChip, { backgroundColor: actualTheme === 'dark' ? colors.background : '#fff', borderColor: colors.border }, filters.isVirtual === false && { backgroundColor: colors.primary, borderColor: colors.primary }]}
-                    onPress={() => setFilters({ ...filters, isVirtual: filters.isVirtual === false ? undefined : false })}
+                    style={[
+                      styles.filterChip,
+                      {
+                        backgroundColor:
+                          actualTheme === "dark" ? colors.background : "#fff",
+                        borderColor: colors.border,
+                      },
+                      filters.isVirtual === false && {
+                        backgroundColor: colors.primary,
+                        borderColor: colors.primary,
+                      },
+                    ]}
+                    onPress={() =>
+                      setFilters({
+                        ...filters,
+                        isVirtual:
+                          filters.isVirtual === false ? undefined : false,
+                      })
+                    }
                   >
-                    <Ionicons 
-                      name="business-outline" 
-                      size={16} 
-                      color={filters.isVirtual === false ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary} 
+                    <Ionicons
+                      name="business-outline"
+                      size={16}
+                      color={
+                        filters.isVirtual === false
+                          ? actualTheme === "dark"
+                            ? colors.background
+                            : "#fff"
+                          : colors.secondary
+                      }
                     />
-                    <Text style={[styles.filterChipText, { color: filters.isVirtual === false ? (actualTheme === 'dark' ? colors.background : '#fff') : colors.secondary }]}>In-Person</Text>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        {
+                          color:
+                            filters.isVirtual === false
+                              ? actualTheme === "dark"
+                                ? colors.background
+                                : "#fff"
+                              : colors.secondary,
+                        },
+                      ]}
+                    >
+                      In-Person
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </ScrollView>
 
-            <View style={[styles.modalFooter, { borderTopColor: colors.border }]}>
-              <TouchableOpacity 
-                style={[styles.resetButton, { backgroundColor: actualTheme === 'dark' ? colors.background : '#fff', borderColor: colors.border }]}
+            <View
+              style={[styles.modalFooter, { borderTopColor: colors.border }]}
+            >
+              <TouchableOpacity
+                style={[
+                  styles.resetButton,
+                  {
+                    backgroundColor:
+                      actualTheme === "dark" ? colors.background : "#fff",
+                    borderColor: colors.border,
+                  },
+                ]}
                 onPress={resetFilters}
               >
-                <Text style={[styles.resetButtonText, { color: colors.text }]}>Reset All</Text>
+                <Text style={[styles.resetButtonText, { color: colors.text }]}>
+                  Reset All
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.applyButton, { backgroundColor: colors.primary, shadowColor: colors.primary }]}
+              <TouchableOpacity
+                style={[
+                  styles.applyButton,
+                  {
+                    backgroundColor: colors.primary,
+                    shadowColor: colors.primary,
+                  },
+                ]}
                 onPress={() => setFilterModalVisible(false)}
               >
-                <Text style={[styles.applyButtonText, { color: actualTheme === 'dark' ? colors.background : '#fff' }]}>Apply Filters</Text>
+                <Text
+                  style={[
+                    styles.applyButtonText,
+                    {
+                      color:
+                        actualTheme === "dark" ? colors.background : "#fff",
+                    },
+                  ]}
+                >
+                  Apply Filters
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
+
+      {/* Chat Button & Modal */}
+      <ChatButton onPress={() => setIsChatVisible(true)} />
+      <ChatModal
+        visible={isChatVisible}
+        onClose={() => setIsChatVisible(false)}
+      />
     </View>
   );
 }
